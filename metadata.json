@@ -1,0 +1,8 @@
+{
+  "name": "AI Marketing Suite",
+  "description": "An amazing, comprehensive AI marketing application designed for mobile. Featuring powerful tools for UGC Ad Creation, campaigns, post assistance, image generation, and content creation to serve marketers of all sizes.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "prompt": ""
+}

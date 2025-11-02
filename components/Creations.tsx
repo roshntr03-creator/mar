@@ -4,7 +4,7 @@
 */
 import React, {useEffect, useState} from 'react';
 import {PageProps} from '../App';
-import {getCreationJobs} from '../services/creationManager';
+import {getCreationJobs, getVideoUrlByKey} from '../services/creationManager';
 import {CreationJob, CreationJobStatus} from '../types';
 import {ClapperboardIcon, SparklesIcon, UgcVideoIcon} from './icons';
 
@@ -87,21 +87,42 @@ const CreationCard: React.FC<{
   language: 'english' | 'arabic';
 }> = ({job, language}) => {
   const texts = TEXTS[language];
-  const [videoUrls, setVideoUrls] = useState<(string | null)[]>([]);
+  const [displayUrls, setDisplayUrls] = useState<(string | null)[]>([]);
 
   useEffect(() => {
-    // Revoke old URLs on cleanup
+    let isMounted = true;
+    const loadedUrls: string[] = [];
+
+    const loadVideoUrls = async () => {
+      if (job.status === 'completed' && job.resultUrls) {
+        const urls = await Promise.all(
+          job.resultUrls.map(async (key) => {
+            if (!key) return null;
+            try {
+              const url = await getVideoUrlByKey(key);
+              loadedUrls.push(url); // Add to the list for this effect's cleanup
+              return url;
+            } catch (error) {
+              console.error(`Error loading video for key ${key}:`, error);
+              return null;
+            }
+          }),
+        );
+        if (isMounted) {
+          setDisplayUrls(urls);
+        }
+      }
+    };
+
+    loadVideoUrls();
+
     return () => {
-      videoUrls.forEach((url) => {
+      isMounted = false;
+      // Only revoke the URLs that were created in this specific effect run.
+      loadedUrls.forEach((url) => {
         if (url) URL.revokeObjectURL(url);
       });
     };
-  }, [videoUrls]);
-
-  useEffect(() => {
-    if (job.status === 'completed' && job.resultUrls) {
-      setVideoUrls(job.resultUrls);
-    }
   }, [job.status, job.resultUrls]);
 
   const Icon = job.type === 'ugc_video' ? UgcVideoIcon : ClapperboardIcon;
@@ -112,6 +133,7 @@ const CreationCard: React.FC<{
       timeStyle: 'short',
     },
   );
+  const hasThumbnail = job.thumbnailUrl && job.thumbnailUrl.startsWith('data:');
 
   return (
     <div className="bg-component-dark/30 rounded-xl border border-white/10 backdrop-blur-lg shadow-lg overflow-hidden">
@@ -119,7 +141,7 @@ const CreationCard: React.FC<{
         <div className="flex justify-between items-start gap-4">
           <div className="flex items-start gap-4">
             <div className="w-16 h-16 rounded-lg bg-background-dark flex-shrink-0 flex items-center justify-center">
-              {job.thumbnailUrl ? (
+              {hasThumbnail ? (
                 <img
                   src={job.thumbnailUrl}
                   alt="Thumbnail"
@@ -140,16 +162,16 @@ const CreationCard: React.FC<{
         </div>
       </div>
 
-      {job.status === 'completed' && videoUrls.length > 0 && (
+      {job.status === 'completed' && displayUrls.length > 0 && (
         <div
           className={`grid gap-4 p-4 pt-0 ${
-            videoUrls.length > 1 ? 'grid-cols-2' : 'grid-cols-1'
+            displayUrls.length > 1 ? 'grid-cols-2' : 'grid-cols-1'
           }`}>
-          {videoUrls.map(
+          {displayUrls.map(
             (url, index) =>
               url && (
                 <div key={index} className="rounded-lg overflow-hidden bg-black">
-                  {videoUrls.length > 1 && (
+                  {displayUrls.length > 1 && (
                     <p className="text-center text-xs font-semibold text-text-secondary py-1 bg-background-dark">
                       {texts.part} {index + 1}
                     </p>
@@ -158,7 +180,8 @@ const CreationCard: React.FC<{
                     src={url}
                     controls
                     playsInline
-                    className="w-full aspect-[9/16] object-cover"
+                    poster={hasThumbnail ? job.thumbnailUrl : undefined}
+                    className="w-full aspect-[9/16] object-cover bg-black"
                   />
                 </div>
               ),
@@ -181,7 +204,19 @@ export const Creations: React.FC<CreationsProps> = ({language, setActiveTab}) =>
   const texts = TEXTS[language];
 
   useEffect(() => {
-    const updateJobs = () => setJobs(getCreationJobs());
+    const updateJobs = () => {
+      const newJobs = getCreationJobs();
+      setJobs((prevJobs) => {
+        // Prevent re-renders if the underlying data hasn't changed.
+        // This is crucial to stop child components from revoking and
+        // re-creating video blob URLs, which was causing playback to fail.
+        if (JSON.stringify(newJobs) === JSON.stringify(prevJobs)) {
+          return prevJobs;
+        }
+        return newJobs;
+      });
+    };
+
     updateJobs();
 
     // Listen for storage events to update in real-time

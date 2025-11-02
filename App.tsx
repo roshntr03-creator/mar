@@ -53,7 +53,10 @@ export interface PageProps extends LanguageProps {
 const BRAND_IDENTITY_KEY = 'aiMarketingSuite_brandIdentity';
 const WELCOME_SEEN_KEY = 'aiMarketingSuite_hasSeenWelcome';
 const PENDING_BRAND_INFO_KEY = 'aiMarketingSuite_pendingBrandInfo';
-const VEO_PROMO_MODEL = 'veo-3.1-generate-preview';
+
+const SORA_API_KEY = '8774ae5d8c69b9009c49a774e9b12555';
+const SORA_API_BASE_URL = 'https://api.kie.ai/api/v1/jobs';
+const SORA_MODEL_NAME = 'sora-2-text-to-video';
 
 const TAB_COMPONENTS: Record<Tab, React.FC<PageProps>> = {
   dashboard: Dashboard,
@@ -92,45 +95,66 @@ async function processPendingJobs() {
   const pendingJobs = jobs.filter((job) => job.status === 'pending');
   if (pendingJobs.length === 0) return;
 
-  const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
-
   for (const job of pendingJobs) {
     try {
       updateCreationJob(job.id, {status: 'generating'});
-      const operations: (object | null)[] = [];
+      const taskIds: string[] = [];
+
+      const jobDetailsList: {prompt: string; aspect_ratio: string}[] = [];
 
       if (job.type === 'ugc_video') {
         const details = job.details as UgcVideoJobDetails;
         for (const scriptInfo of details.scripts) {
-          const prompt = `Persona: ${details.personaDescription}. Action: ${details.interaction}. Dialogue: "${scriptInfo.script}". Vibe: ${details.vibe}. Setting: ${details.setting}.`;
-          const operation = await ai.models.generateVideos({
-            model: details.model,
-            prompt,
-            image: {
-              imageBytes: details.productImageBase64,
-              mimeType: 'image/jpeg',
-            },
-            config: {numberOfVideos: 1},
+          jobDetailsList.push({
+            prompt: `Product: ${details.productDescription}. Persona: ${details.personaDescription}. Action: ${details.interaction}. Dialogue: "${scriptInfo.script}". Vibe: ${details.vibe}. Setting: ${details.setting}.`,
+            aspect_ratio:
+              details.aspectRatio === '9:16' ? 'portrait' : 'landscape',
           });
-          operations.push(operation ?? null);
         }
       } else if (job.type === 'promo_video') {
         const details = job.details as PromoVideoJobDetails;
         for (const promptInfo of details.prompts) {
-          const detailedPrompt = `Concept: "${promptInfo.prompt}". Style: ${details.videoStyle}. Pacing: ${details.pacing}.`;
-          const operation = await ai.models.generateVideos({
-            model: VEO_PROMO_MODEL,
-            prompt: detailedPrompt,
-            config: {
-              numberOfVideos: 1,
-              aspectRatio: details.aspectRatio,
-              resolution: '720p',
-            },
+          jobDetailsList.push({
+            prompt: `Concept: "${promptInfo.prompt}". Style: ${details.videoStyle}. Pacing: ${details.pacing}.`,
+            aspect_ratio:
+              details.aspectRatio === '9:16' ? 'portrait' : 'landscape',
           });
-          operations.push(operation ?? null);
         }
       }
-      updateCreationJob(job.id, {operations});
+
+      for (const details of jobDetailsList) {
+        const response = await fetch(`${SORA_API_BASE_URL}/createTask`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${SORA_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: SORA_MODEL_NAME,
+            input: {
+              prompt: details.prompt,
+              aspect_ratio: details.aspect_ratio,
+              n_frames: '10',
+              remove_watermark: true,
+            },
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            `Sora API Error: ${errorData.msg || response.statusText}`,
+          );
+        }
+
+        const taskData = await response.json();
+        if (taskData?.data?.taskId) {
+          taskIds.push(taskData.data.taskId);
+        } else {
+          throw new Error('Sora API did not return a valid task ID.');
+        }
+      }
+      updateCreationJob(job.id, {operations: taskIds});
     } catch (e: any) {
       console.error(`Failed to start job ${job.id}:`, e);
       updateCreationJob(job.id, {status: 'failed', error: e.message});
@@ -143,88 +167,100 @@ async function checkGeneratingJobs() {
   const generatingJobs = jobs.filter((job) => job.status === 'generating');
   if (generatingJobs.length === 0) return;
 
-  const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
-
   for (const job of generatingJobs) {
-    if (!job.operations || job.operations.every((op) => !op)) {
+    if (!job.operations || job.operations.length === 0) {
       continue;
     }
 
     try {
       const results = await Promise.all(
-        (job.operations as (object | null)[]).map(async (op) => {
-          if (!op || !(op as any).name) {
+        (job.operations as string[]).map(async (taskId) => {
+          const response = await fetch(
+            `${SORA_API_BASE_URL}/recordInfo?taskId=${taskId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${SORA_API_KEY}`,
+              },
+            },
+          );
+          if (!response.ok) {
             return {
-              done: true,
-              error: {message: 'Invalid operation data in job.'},
+              data: {
+                state: 'fail',
+                failMsg: `Polling failed with status ${response.status}`,
+              },
             };
           }
-
-          const opName = (op as any).name;
-          try {
-            // Use the SDK to poll for the operation status.
-            // Pass a minimal object containing only the name to avoid issues
-            // with deserialized objects from localStorage.
-            // FIX: Cast operation object to 'any' to bypass strict type checking.
-            // The operation object is deserialized from localStorage and is a plain object,
-            // not a class instance, which causes a type mismatch with the SDK's expected type.
-            const polledOperation = await ai.operations.getVideosOperation({
-              operation: {name: opName} as any,
-            });
-            return polledOperation; // This is a rich object with done, response, error.
-          } catch (pollError: any) {
-            const errorMessage = (pollError.message || '').toLowerCase();
-            // Check for transient server-side errors to enable retries.
-            if (
-              errorMessage.includes('500') ||
-              errorMessage.includes('503') ||
-              errorMessage.includes('internal') ||
-              errorMessage.includes('server error')
-            ) {
-              console.warn(
-                `Server error polling job ${job.id} (name: ${opName}): ${pollError.message}. Will retry.`,
-              );
-              return {done: false}; // Treat as a temporary failure.
-            }
-            // Assume other errors are permanent.
-            console.error(
-              `Permanent error polling job ${job.id} (name: ${opName}):`,
-              pollError,
-            );
-            return {
-              done: true,
-              error: {message: `Polling failed: ${pollError.message}`},
-            };
-          }
+          return response.json();
         }),
       );
 
-      const allDone = results.every((op) => op.done);
+      const allDone = results.every(
+        (res) =>
+          res.data.state === 'success' || res.data.state === 'fail',
+      );
 
       if (allDone) {
-        const firstError = results.find((op) => op.error)?.error;
-        if (firstError) {
+        const firstErrorResult = results.find(
+          (res) => res.data.state === 'fail',
+        );
+        if (firstErrorResult) {
           updateCreationJob(job.id, {
             status: 'failed',
-            error: (firstError as any).message || JSON.stringify(firstError),
+            error:
+              firstErrorResult.data.failMsg ||
+              'Unknown error during generation.',
           });
           continue;
         }
 
         const videoBlobs: (Blob | null)[] = await Promise.all(
-          results.map(async (op) => {
-            // FIX: Use 'in' operator as a type guard to safely access 'response'.
-            // This prevents an error because 'op' is a union type and some types
-            // in the union do not have a 'response' property.
-            if (!('response' in op) || !op.response) {
-              return null;
-            }
-            const uri = op.response?.generatedVideos?.[0]?.video?.uri;
+          results.map(async (res) => {
+            const resultJson = res.data.resultJson
+              ? JSON.parse(res.data.resultJson)
+              : null;
+            const uri = resultJson?.resultUrls?.[0];
             if (!uri) return null;
-            const res = await fetch(`${uri}&key=${process.env.API_KEY}`);
-            return res.ok ? res.blob() : null;
+
+            // --- Robust video download with retries ---
+            let videoBlob: Blob | null = null;
+            const maxRetries = 3;
+            const retryDelay = 2000; // 2 seconds
+
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+              try {
+                const videoResponse = await fetch(uri);
+                if (!videoResponse.ok) {
+                  throw new Error(`Fetch failed with status ${videoResponse.status}`);
+                }
+                const contentLengthHeader = videoResponse.headers.get('content-length');
+                const videoArrayBuffer = await videoResponse.arrayBuffer();
+
+                if (contentLengthHeader) {
+                  const expectedSize = parseInt(contentLengthHeader, 10);
+                  if (videoArrayBuffer.byteLength < expectedSize) {
+                    throw new Error(`Incomplete download. Expected ${expectedSize} bytes, got ${videoArrayBuffer.byteLength}`);
+                  }
+                }
+
+                if (videoArrayBuffer.byteLength === 0) {
+                  throw new Error('Downloaded file is empty.');
+                }
+
+                const contentType = videoResponse.headers.get('content-type') || 'video/mp4';
+                videoBlob = new Blob([videoArrayBuffer], { type: contentType });
+                break; // Success
+              } catch (e) {
+                console.error(`Attempt ${attempt} to download video from ${uri} failed:`, e);
+                if (attempt < maxRetries) {
+                  await new Promise(resolve => setTimeout(resolve, retryDelay));
+                }
+              }
+            }
+            return videoBlob;
           }),
         );
+
 
         const resultUrls = await Promise.all(
           videoBlobs.map((blob, index) =>
@@ -236,7 +272,7 @@ async function checkGeneratingJobs() {
           updateCreationJob(job.id, {
             status: 'failed',
             error:
-              'Video generation finished, but no output URI was found in the operation response.',
+              'Video generation finished, but failed to download the final video file.',
           });
         } else {
           updateCreationJob(job.id, {status: 'completed', resultUrls});

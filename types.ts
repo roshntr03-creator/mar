@@ -34,8 +34,9 @@ export type CreationJobStatus =
 export type CreationJobType = 'ugc_video' | 'promo_video';
 
 export interface UgcVideoJobDetails {
-  model: string;
   productImageBase64: string;
+  productDescription: string;
+  aspectRatio: '9:16' | '16:9';
   scripts: {script: string; part: number; total: number}[];
   gender: 'male' | 'female';
   interaction: string;
@@ -60,7 +61,7 @@ export interface CreationJob {
   createdAt: string; // ISO string
   title: string; // The main user prompt
   details: UgcVideoJobDetails | PromoVideoJobDetails;
-  operations?: (object | null)[];
+  operations?: string[];
   resultUrls?: (string | null)[];
   error?: string;
   thumbnailUrl: string; // Base64 data URL for UGC, or a placeholder

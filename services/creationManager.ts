@@ -59,6 +59,9 @@ async function getDB() {
   });
 }
 
+/**
+ * Saves a video blob to IndexedDB and returns the key used to store it.
+ */
 export async function saveVideoResult(
   jobId: string,
   partIndex: number,
@@ -67,15 +70,15 @@ export async function saveVideoResult(
   const db = await getDB();
   const key = `${jobId}_${partIndex}`;
   await db.put(STORE_NAME, videoBlob, key);
-  return await getVideoUrl(jobId, partIndex);
+  return key; // Return the key, not a temporary URL
 }
 
-export async function getVideoUrl(
-  jobId: string,
-  partIndex: number,
-): Promise<string> {
+/**
+ * Retrieves a video blob from IndexedDB using its key and creates a valid,
+ * temporary Object URL for playback.
+ */
+export async function getVideoUrlByKey(key: string): Promise<string> {
   const db = await getDB();
-  const key = `${jobId}_${partIndex}`;
   const blob = await db.get(STORE_NAME, key);
   if (blob instanceof Blob) {
     return URL.createObjectURL(blob);

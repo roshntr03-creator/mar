@@ -60,8 +60,8 @@ const TEXTS: Record<'english' | 'arabic', any> = {
     },
     structure: 'Video Structure',
     structures: {
-      single: 'Single 8s Video',
-      dual: 'Two 8s Videos (16s total)',
+      single: 'Single 10s Video',
+      dual: 'Two 10s Videos (20s total)',
     },
     generate_title: '3. Generate Video',
     generate_button: 'Generate Video',
@@ -103,8 +103,8 @@ const TEXTS: Record<'english' | 'arabic', any> = {
     },
     structure: 'هيكل الفيديو',
     structures: {
-      single: 'فيديو واحد (8 ثوانٍ)',
-      dual: 'فيديوهان (16 ثانية إجمالاً)',
+      single: 'فيديو واحد (10 ثوانٍ)',
+      dual: 'فيديوهان (20 ثانية إجمالاً)',
     },
     generate_title: '٣. توليد الفيديو',
     generate_button: 'توليد الفيديو',
@@ -129,7 +129,7 @@ async function splitVideoPrompt(
   language: 'english' | 'arabic',
 ): Promise<[string, string]> {
   const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
-  const splitRequestPrompt = `You are a creative director. Split the following video concept into two balanced, logical parts for two separate 8-second videos. Return ONLY a valid JSON array with two strings. Video Concept: "${prompt}"`;
+  const splitRequestPrompt = `You are a creative director. Split the following video concept into two balanced, logical parts for two separate 10-second videos. Return ONLY a valid JSON array with two strings. Video Concept: "${prompt}"`;
 
   try {
     const response = await ai.models.generateContent({

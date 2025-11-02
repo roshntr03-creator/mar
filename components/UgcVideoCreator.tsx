@@ -20,7 +20,6 @@ import {
 } from './icons';
 
 const SCRIPT_MODEL_NAME = 'gemini-2.5-flash';
-const VEO_UGC_MODEL = 'veo-3.1-generate-preview';
 
 type Status = 'idle' | 'generating_script' | 'script_ready' | 'error';
 type VideoStructure = 'single' | 'dual';
@@ -48,8 +47,8 @@ const TEXTS: Record<'english' | 'arabic', any> = {
     gender_female: 'Female',
     gender_male: 'Male',
     structure_label: 'Video Structure',
-    structure_single: 'Single 8s Video',
-    structure_dual: 'Two 8s Videos (16s total)',
+    structure_single: 'Single 10s Video',
+    structure_dual: 'Two 10s Videos (20s total)',
     vibe_label: 'Vibe / Tone',
     vibe_energetic: 'Energetic',
     vibe_calm: 'Calm & Trustworthy',
@@ -66,6 +65,7 @@ const TEXTS: Record<'english' | 'arabic', any> = {
     watermark_cta:
       'Click to upload a logo (PNG with transparent background recommended)',
     generate_video: 'Generate Video',
+    preparing_video: 'Preparing...',
     errors: {
       upload_first: 'Please upload a product image first.',
       api_key_invalid: 'Invalid API Key',
@@ -104,8 +104,8 @@ const TEXTS: Record<'english' | 'arabic', any> = {
     gender_female: 'أنثى',
     gender_male: 'ذكر',
     structure_label: 'هيكل الفيديو',
-    structure_single: 'فيديو واحد (8 ثوانٍ)',
-    structure_dual: 'فيديوهان (8 ثوانٍ لكل منهما، إجمالي 16 ثانية)',
+    structure_single: 'فيديو واحد (10 ثوانٍ)',
+    structure_dual: 'فيديوهان (10 ثوانٍ لكل منهما، إجمالي 20 ثانية)',
     vibe_label: 'الجو العام / النبرة',
     vibe_energetic: 'حيوي',
     vibe_calm: 'هادئ وموثوق',
@@ -121,6 +121,7 @@ const TEXTS: Record<'english' | 'arabic', any> = {
     watermark_title: 'اختياري: إضافة علامة مائية',
     watermark_cta: 'انقر لرفع شعار (يوصى بـ PNG بخلفية شفافة)',
     generate_video: 'توليد الفيديو',
+    preparing_video: 'تحضير...',
     errors: {
       upload_first: 'يرجى رفع صورة المنتج أولاً.',
       api_key_invalid: 'مفتاح API غير صالح',
@@ -200,7 +201,7 @@ async function splitScript(
   language: 'english' | 'arabic',
   ai: any,
 ): Promise<[string, string]> {
-  const prompt = `Split this script into two balanced parts for two 8s videos. Return ONLY a valid JSON array with two strings. Script: "${script}"`;
+  const prompt = `Split this script into two balanced parts for two 10s videos. Return ONLY a valid JSON array with two strings. Script: "${script}"`;
   const response = await ai.models.generateContent({
     model: SCRIPT_MODEL_NAME,
     contents: {parts: [{text: prompt}]},
@@ -215,6 +216,20 @@ async function splitScript(
   const words = script.split(' ');
   const mid = Math.ceil(words.length / 2);
   return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
+}
+
+async function describeImageForPrompt(
+  base64Image: string,
+  ai: GoogleGenAI,
+): Promise<string> {
+  const imagePart = {inlineData: {mimeType: 'image/jpeg', data: base64Image}};
+  const prompt =
+    'Describe this product image in a single, descriptive sentence to be used as context in a video generation prompt. Focus on the main subject and its key visual characteristics.';
+  const response = await ai.models.generateContent({
+    model: SCRIPT_MODEL_NAME,
+    contents: {parts: [imagePart, {text: prompt}]},
+  });
+  return response.text;
 }
 
 // --- UI Components ---
@@ -332,6 +347,7 @@ export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
   const [gender, setGender] = useState<Gender>('female');
   const [vibe, setVibe] = useState<Vibe>('energetic');
   const [setting, setSetting] = useState<Setting>('studio');
+  const [isPreparing, setIsPreparing] = useState(false);
 
   // Refs and constants
   const texts = TEXTS[language];
@@ -426,44 +442,59 @@ export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
       return;
     }
     setError(null);
+    setIsPreparing(true);
 
-    const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
-    const scriptsToProcess: {script: string; part: number; total: number}[] =
-      [];
-    if (videoStructure === 'single') {
-      scriptsToProcess.push({script, part: 1, total: 1});
-    } else {
-      const [part1, part2] = await splitScript(script, language, ai);
-      scriptsToProcess.push({script: part1, part: 1, total: 2});
-      scriptsToProcess.push({script: part2, part: 2, total: 2});
+    try {
+      const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
+
+      const productDescription = await describeImageForPrompt(
+        productImageBase64,
+        ai,
+      );
+
+      const scriptsToProcess: {script: string; part: number; total: number}[] =
+        [];
+      if (videoStructure === 'single') {
+        scriptsToProcess.push({script, part: 1, total: 1});
+      } else {
+        const [part1, part2] = await splitScript(script, language, ai);
+        scriptsToProcess.push({script: part1, part: 1, total: 2});
+        scriptsToProcess.push({script: part2, part: 2, total: 2});
+      }
+
+      const details: UgcVideoJobDetails = {
+        productImageBase64,
+        productDescription,
+        aspectRatio: '9:16', // Default to portrait for mobile-first UGC
+        scripts: scriptsToProcess,
+        gender,
+        interaction: selectedInteraction,
+        personaDescription: getPersonaDescription(language, gender),
+        vibe,
+        setting,
+        logoBase64: logoBase64 ?? undefined,
+        logoMimeType: logoMimeType ?? undefined,
+      };
+
+      const newJob: CreationJob = {
+        id: `ugc_${new Date().toISOString()}`,
+        type: 'ugc_video',
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        title: script.substring(0, 50) + '...',
+        details,
+        thumbnailUrl: productImageUrl!,
+      };
+
+      addCreationJob(newJob);
+      setActiveTab('creations');
+      handleReset();
+    } catch (e: any) {
+      console.error(e);
+      setError([texts.errors.video_failed, e.message]);
+    } finally {
+      setIsPreparing(false);
     }
-
-    const details: UgcVideoJobDetails = {
-      model: VEO_UGC_MODEL,
-      productImageBase64,
-      scripts: scriptsToProcess,
-      gender,
-      interaction: selectedInteraction,
-      personaDescription: getPersonaDescription(language, gender),
-      vibe,
-      setting,
-      logoBase64: logoBase64 ?? undefined,
-      logoMimeType: logoMimeType ?? undefined,
-    };
-
-    const newJob: CreationJob = {
-      id: `ugc_${new Date().toISOString()}`,
-      type: 'ugc_video',
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-      title: script.substring(0, 50) + '...',
-      details,
-      thumbnailUrl: productImageUrl!,
-    };
-
-    addCreationJob(newJob);
-    setActiveTab('creations');
-    handleReset();
   }, [
     productImageBase64,
     productImageUrl,
@@ -701,8 +732,9 @@ export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
         </button>
         <button
           onClick={handleGenerateVideo}
-          className="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-primary-start to-primary-end text-white font-semibold transition-all hover:opacity-90 hover:-translate-y-px">
-          {texts.generate_video}
+          disabled={isPreparing}
+          className="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-primary-start to-primary-end text-white font-semibold transition-all hover:opacity-90 hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed">
+          {isPreparing ? texts.preparing_video : texts.generate_video}
         </button>
       </div>
     </GlassCard>

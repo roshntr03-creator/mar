@@ -22,7 +22,7 @@ import {
 const SCRIPT_MODEL_NAME = 'gemini-2.5-flash';
 
 type Status = 'idle' | 'generating_script' | 'script_ready' | 'error';
-type VideoStructure = 'single' | 'dual';
+type VideoLengthOption = '10s' | '15s' | '2x15s';
 type Gender = 'male' | 'female';
 type Vibe = 'energetic' | 'calm' | 'luxurious' | 'playful';
 type Setting = 'studio' | 'home' | 'outdoor' | 'urban';
@@ -46,9 +46,10 @@ const TEXTS: Record<'english' | 'arabic', any> = {
     gender_label: 'Influencer Gender',
     gender_female: 'Female',
     gender_male: 'Male',
-    structure_label: 'Video Structure',
-    structure_single: 'Single 10s Video',
-    structure_dual: 'Two 10s Videos (20s total)',
+    structure_label: 'Video Length',
+    structure_10s: '10 seconds',
+    structure_15s: '15 seconds',
+    structure_2x15s: '2 x 15s parts (30s total)',
     vibe_label: 'Vibe / Tone',
     vibe_energetic: 'Energetic',
     vibe_calm: 'Calm & Trustworthy',
@@ -103,9 +104,10 @@ const TEXTS: Record<'english' | 'arabic', any> = {
     gender_label: 'جنس المؤثر',
     gender_female: 'أنثى',
     gender_male: 'ذكر',
-    structure_label: 'هيكل الفيديو',
-    structure_single: 'فيديو واحد (10 ثوانٍ)',
-    structure_dual: 'فيديوهان (10 ثوانٍ لكل منهما، إجمالي 20 ثانية)',
+    structure_label: 'مدة الفيديو',
+    structure_10s: '10 ثوانٍ',
+    structure_15s: '15 ثانية',
+    structure_2x15s: 'جزئين × 15 ثانية (إجمالي 30 ثانية)',
     vibe_label: 'الجو العام / النبرة',
     vibe_energetic: 'حيوي',
     vibe_calm: 'هادئ وموثوق',
@@ -201,7 +203,7 @@ async function splitScript(
   language: 'english' | 'arabic',
   ai: any,
 ): Promise<[string, string]> {
-  const prompt = `Split this script into two balanced parts for two 10s videos. Return ONLY a valid JSON array with two strings. Script: "${script}"`;
+  const prompt = `Split this script into two balanced parts for two 15s videos. Return ONLY a valid JSON array with two strings. Script: "${script}"`;
   const response = await ai.models.generateContent({
     model: SCRIPT_MODEL_NAME,
     contents: {parts: [{text: prompt}]},
@@ -342,8 +344,8 @@ export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
   const [logoBase64, setLogoBase64] = useState<string | null>(null);
   const [logoMimeType, setLogoMimeType] = useState<string | null>(null);
 
-  const [videoStructure, setVideoStructure] =
-    useState<VideoStructure>('single');
+  const [videoLengthOption, setVideoLengthOption] =
+    useState<VideoLengthOption>('10s');
   const [gender, setGender] = useState<Gender>('female');
   const [vibe, setVibe] = useState<Vibe>('energetic');
   const [setting, setSetting] = useState<Setting>('studio');
@@ -374,7 +376,7 @@ export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
     setLogoUrl(null);
     setLogoBase64(null);
     setLogoMimeType(null);
-    setVideoStructure('single');
+    setVideoLengthOption('10s');
     setGender('female');
     setVibe('energetic');
     setSetting('studio');
@@ -454,12 +456,20 @@ export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
 
       const scriptsToProcess: {script: string; part: number; total: number}[] =
         [];
-      if (videoStructure === 'single') {
+      let n_frames = 10;
+
+      if (videoLengthOption === '10s') {
         scriptsToProcess.push({script, part: 1, total: 1});
+        n_frames = 10;
+      } else if (videoLengthOption === '15s') {
+        scriptsToProcess.push({script, part: 1, total: 1});
+        n_frames = 15;
       } else {
+        // '2x15s'
         const [part1, part2] = await splitScript(script, language, ai);
         scriptsToProcess.push({script: part1, part: 1, total: 2});
         scriptsToProcess.push({script: part2, part: 2, total: 2});
+        n_frames = 15;
       }
 
       const details: UgcVideoJobDetails = {
@@ -474,6 +484,7 @@ export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
         setting,
         logoBase64: logoBase64 ?? undefined,
         logoMimeType: logoMimeType ?? undefined,
+        n_frames,
       };
 
       const newJob: CreationJob = {
@@ -504,7 +515,7 @@ export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
     language,
     gender,
     selectedInteraction,
-    videoStructure,
+    videoLengthOption,
     vibe,
     setting,
     texts,
@@ -687,14 +698,19 @@ export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
           </label>
           <div className="flex gap-2">
             <OptionButton
-              label={texts.structure_single}
-              isSelected={videoStructure === 'single'}
-              onClick={() => setVideoStructure('single')}
+              label={texts.structure_10s}
+              isSelected={videoLengthOption === '10s'}
+              onClick={() => setVideoLengthOption('10s')}
             />
             <OptionButton
-              label={texts.structure_dual}
-              isSelected={videoStructure === 'dual'}
-              onClick={() => setVideoStructure('dual')}
+              label={texts.structure_15s}
+              isSelected={videoLengthOption === '15s'}
+              onClick={() => setVideoLengthOption('15s')}
+            />
+            <OptionButton
+              label={texts.structure_2x15s}
+              isSelected={videoLengthOption === '2x15s'}
+              onClick={() => setVideoLengthOption('2x15s')}
             />
           </div>
         </div>

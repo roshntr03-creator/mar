@@ -45,6 +45,7 @@ export interface UgcVideoJobDetails {
   setting: string;
   logoBase64?: string;
   logoMimeType?: string;
+  n_frames: number;
 }
 
 export interface PromoVideoJobDetails {
@@ -52,6 +53,7 @@ export interface PromoVideoJobDetails {
   aspectRatio: '9:16' | '16:9';
   videoStyle: string;
   pacing: string;
+  n_frames: number;
 }
 
 export interface CreationJob {

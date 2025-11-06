@@ -21,7 +21,7 @@ type VideoStyle =
   | 'Hyper-realistic'
   | 'Animated';
 type Pacing = 'Normal Pacing' | 'Slow Motion' | 'Fast-Paced' | 'Time-lapse';
-type VideoStructure = 'single' | 'dual';
+type VideoLengthOption = '10s' | '15s' | '2x15s';
 
 interface PromoVideoProps extends PageProps {}
 
@@ -58,10 +58,11 @@ const TEXTS: Record<'english' | 'arabic', any> = {
       'Fast-Paced': 'Fast-Paced',
       'Time-lapse': 'Time-lapse',
     },
-    structure: 'Video Structure',
+    structure: 'Video Length',
     structures: {
-      single: 'Single 10s Video',
-      dual: 'Two 10s Videos (20s total)',
+      '10s': '10 seconds',
+      '15s': '15 seconds',
+      '2x15s': '2 parts x 15s (30s total)',
     },
     generate_title: '3. Generate Video',
     generate_button: 'Generate Video',
@@ -101,10 +102,11 @@ const TEXTS: Record<'english' | 'arabic', any> = {
       'Fast-Paced': 'إيقاع سريع',
       'Time-lapse': 'فاصل زمني',
     },
-    structure: 'هيكل الفيديو',
+    structure: 'مدة الفيديو',
     structures: {
-      single: 'فيديو واحد (10 ثوانٍ)',
-      dual: 'فيديوهان (20 ثانية إجمالاً)',
+      '10s': '10 ثوانٍ',
+      '15s': '15 ثانية',
+      '2x15s': 'جزئين × 15 ثانية (إجمالي 30 ثانية)',
     },
     generate_title: '٣. توليد الفيديو',
     generate_button: 'توليد الفيديو',
@@ -129,7 +131,7 @@ async function splitVideoPrompt(
   language: 'english' | 'arabic',
 ): Promise<[string, string]> {
   const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
-  const splitRequestPrompt = `You are a creative director. Split the following video concept into two balanced, logical parts for two separate 10-second videos. Return ONLY a valid JSON array with two strings. Video Concept: "${prompt}"`;
+  const splitRequestPrompt = `You are a creative director. Split the following video concept into two balanced, logical parts for two separate 15-second videos. Return ONLY a valid JSON array with two strings. Video Concept: "${prompt}"`;
 
   try {
     const response = await ai.models.generateContent({
@@ -168,8 +170,8 @@ export const PromoVideo: React.FC<PromoVideoProps> = ({
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>('9:16');
   const [videoStyle, setVideoStyle] = useState<VideoStyle>('Cinematic');
   const [pacing, setPacing] = useState<Pacing>('Normal Pacing');
-  const [videoStructure, setVideoStructure] =
-    useState<VideoStructure>('single');
+  const [videoLengthOption, setVideoLengthOption] =
+    useState<VideoLengthOption>('10s');
   const texts = TEXTS[language];
 
   const handleGenerate = async () => {
@@ -181,12 +183,20 @@ export const PromoVideo: React.FC<PromoVideoProps> = ({
 
     const promptsToProcess: {prompt: string; part: number; total: number}[] =
       [];
-    if (videoStructure === 'single') {
+    let n_frames = 10;
+
+    if (videoLengthOption === '10s') {
       promptsToProcess.push({prompt, part: 1, total: 1});
+      n_frames = 10;
+    } else if (videoLengthOption === '15s') {
+      promptsToProcess.push({prompt, part: 1, total: 1});
+      n_frames = 15;
     } else {
+      // 2x15s
       const [part1, part2] = await splitVideoPrompt(prompt, language);
       promptsToProcess.push({prompt: part1, part: 1, total: 2});
       promptsToProcess.push({prompt: part2, part: 2, total: 2});
+      n_frames = 15;
     }
 
     const details: PromoVideoJobDetails = {
@@ -194,6 +204,7 @@ export const PromoVideo: React.FC<PromoVideoProps> = ({
       aspectRatio,
       videoStyle,
       pacing,
+      n_frames,
     };
 
     const newJob: CreationJob = {
@@ -291,12 +302,12 @@ export const PromoVideo: React.FC<PromoVideoProps> = ({
                 {texts.structure}
               </label>
               <select
-                value={videoStructure}
+                value={videoLengthOption}
                 onChange={(e) =>
-                  setVideoStructure(e.target.value as VideoStructure)
+                  setVideoLengthOption(e.target.value as VideoLengthOption)
                 }
                 className="w-full bg-background-dark border-border-dark rounded-md py-2 px-3 text-text-dark focus:ring-primary/50 focus:border-primary">
-                {(Object.keys(texts.structures) as VideoStructure[]).map(
+                {(Object.keys(texts.structures) as VideoLengthOption[]).map(
                   (structure) => (
                     <option key={structure} value={structure}>
                       {texts.structures[structure]}

@@ -134,7 +134,9 @@ async function processPendingJobs() {
             input: {
               prompt: details.prompt,
               aspect_ratio: details.aspect_ratio,
-              n_frames: '10',
+              n_frames: (
+                job.details as UgcVideoJobDetails | PromoVideoJobDetails
+              ).n_frames.toString(),
               remove_watermark: true,
             },
           }),

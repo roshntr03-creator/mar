@@ -60,12 +60,12 @@ const TEXTS: Record<Language, any> = {
   },
 };
 
-const GlassCard: React.FC<{children: React.ReactNode; className?: string}> = ({
+const Card: React.FC<{children: React.ReactNode; className?: string}> = ({
   children,
   className,
 }) => (
   <div
-    className={`p-6 bg-component-dark/30 rounded-xl border border-white/10 backdrop-blur-lg shadow-lg ${className}`}>
+    className={`p-6 bg-component-dark rounded-xl border border-border-dark shadow-lg ${className}`}>
     {children}
   </div>
 );
@@ -122,14 +122,14 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
         />
       )}
       <div className="space-y-6">
-        <GlassCard>
+        <Card>
           <h3 className="text-lg font-semibold text-text-dark mb-4">
             {texts.title}
           </h3>
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            className="w-full bg-background-dark border-border-dark rounded-md p-3 text-text-dark h-28 focus:ring-primary/50 focus:border-primary"
+            className="w-full bg-border-dark border-border-dark rounded-md p-3 text-text-dark h-28 focus:ring-primary/50 focus:border-primary focus:bg-component-dark transition-colors"
             placeholder={texts.placeholder}
           />
           <div className="mt-4">
@@ -139,7 +139,7 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
             <select
               value={aspectRatio}
               onChange={(e) => setAspectRatio(e.target.value as AspectRatio)}
-              className="w-full bg-background-dark border-border-dark rounded-md py-2 px-3 text-text-dark focus:ring-primary/50 focus:border-primary">
+              className="w-full bg-border-dark border-border-dark rounded-md py-2 px-3 text-text-dark focus:ring-primary/50 focus:border-primary focus:bg-component-dark transition-colors">
               {(Object.keys(texts.aspect_ratios) as AspectRatio[]).map((ar) => (
                 <option key={ar} value={ar}>
                   {texts.aspect_ratios[ar]}
@@ -147,9 +147,9 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
               ))}
             </select>
           </div>
-        </GlassCard>
+        </Card>
 
-        <GlassCard>
+        <Card>
           <h3 className="text-lg font-semibold text-text-dark mb-4">
             {texts.generate_title}
           </h3>
@@ -169,10 +169,10 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
               </>
             )}
           </button>
-        </GlassCard>
+        </Card>
 
         {generatedImage && (
-          <GlassCard className="animate-fade-in">
+          <Card className="animate-fade-in">
             <h3 className="text-xl font-bold text-center text-text-dark mb-4">
               {texts.result_title}
             </h3>
@@ -195,7 +195,7 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
               </p>
               <p className="text-text-dark italic">"{prompt}"</p>
             </div>
-          </GlassCard>
+          </Card>
         )}
       </div>
     </div>

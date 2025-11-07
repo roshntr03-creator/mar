@@ -284,22 +284,21 @@ export const AiMarketingCoach: React.FC<AiMarketingCoachProps> = ({
     const isUser = speaker === 'You';
     return (
       <div className={`flex gap-3 ${isUser ? 'flex-row-reverse' : ''}`}>
+        <img
+          src={avatarUrl}
+          alt={speaker}
+          className="size-10 shrink-0 rounded-full object-cover"
+        />
         <div
-          className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 shrink-0"
-          style={{backgroundImage: `url("${avatarUrl}")`}}></div>
-        <div
-          className={`flex flex-1 flex-col gap-2 ${
+          className={`flex flex-1 flex-col gap-1 ${
             isUser ? 'items-end' : 'items-start'
           }`}>
           <div
-            className={`rounded-lg p-3 max-w-sm ${
+            className={`rounded-xl p-3 max-w-sm w-fit ${
               isUser
-                ? 'bg-gradient-to-br from-primary-start to-primary-end'
-                : 'bg-component-dark/50 border border-white/10 backdrop-blur-sm'
+                ? 'bg-gradient-to-br from-primary-start to-primary-end text-white'
+                : 'bg-component-dark'
             }`}>
-            <p className="text-text-dark text-base font-bold leading-tight">
-              {isUser ? (language === 'arabic' ? 'أنت' : 'You') : title}
-            </p>
             <p className="text-text-dark text-base font-normal leading-normal whitespace-pre-wrap">
               {text}
             </p>

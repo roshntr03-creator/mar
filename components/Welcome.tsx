@@ -89,7 +89,7 @@ const LanguageSwitcher: React.FC<{
   language: Language;
   setLanguage: (lang: Language) => void;
 }> = ({language, setLanguage}) => (
-  <div className="flex w-fit items-center gap-1 rounded-full bg-component-dark/50 p-1 border border-border-dark">
+  <div className="flex w-fit items-center gap-1 rounded-full bg-component-dark p-1 border border-border-dark">
     <button
       onClick={() => setLanguage('english')}
       className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors ${
@@ -181,7 +181,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
                 {texts.step2.title}
               </h1>
               <div className="space-y-4">
-                  <div className="flex items-center gap-4 p-4 rounded-xl bg-component-dark/30 border border-white/10 backdrop-blur-lg shadow-lg">
+                  <div className="flex items-center gap-4 p-4 rounded-xl bg-component-dark border border-border-dark shadow-lg">
                     <div className="text-primary flex items-center justify-center rounded-lg bg-border-dark shrink-0 size-12">
                       <span className="material-symbols-outlined">psychology</span>
                     </div>
@@ -190,7 +190,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
                       <p className="text-text-secondary text-sm font-normal leading-normal">{texts.step2.ideasDesc}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 p-4 rounded-xl bg-component-dark/30 border border-white/10 backdrop-blur-lg shadow-lg">
+                  <div className="flex items-center gap-4 p-4 rounded-xl bg-component-dark border border-border-dark shadow-lg">
                     <div className="text-primary flex items-center justify-center rounded-lg bg-border-dark shrink-0 size-12">
                       <span className="material-symbols-outlined">calendar_month</span>
                     </div>
@@ -199,7 +199,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
                       <p className="text-text-secondary text-sm font-normal leading-normal">{texts.step2.schedulingDesc}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 p-4 rounded-xl bg-component-dark/30 border border-white/10 backdrop-blur-lg shadow-lg">
+                  <div className="flex items-center gap-4 p-4 rounded-xl bg-component-dark border border-border-dark shadow-lg">
                     <div className="text-primary flex items-center justify-center rounded-lg bg-border-dark shrink-0 size-12">
                       <span className="material-symbols-outlined">analytics</span>
                     </div>
@@ -293,7 +293,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
               <textarea
                 value={brandInput}
                 onChange={(e) => setBrandInput(e.target.value)}
-                className={`form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-dark bg-component-dark/50 backdrop-blur-sm focus:border-primary min-h-36 placeholder:text-text-secondary p-4 text-base font-normal leading-normal ${
+                className={`form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-dark bg-border-dark focus:bg-component-dark focus:border-primary min-h-36 placeholder:text-text-secondary p-4 text-base font-normal leading-normal transition-colors ${
                   language === 'arabic' ? 'text-right' : 'text-left'
                 }`}
                 placeholder={texts.step4.placeholder}

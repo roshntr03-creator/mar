@@ -61,12 +61,12 @@ const TEXTS: Record<Language, any> = {
   },
 };
 
-const GlassCard: React.FC<{children: React.ReactNode; className?: string}> = ({
+const Card: React.FC<{children: React.ReactNode; className?: string}> = ({
   children,
   className,
 }) => (
   <div
-    className={`p-6 bg-component-dark/30 rounded-xl border border-white/10 backdrop-blur-lg shadow-lg ${className}`}>
+    className={`p-6 bg-component-dark rounded-xl border border-border-dark shadow-lg ${className}`}>
     {children}
   </div>
 );
@@ -136,7 +136,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({
         />
       )}
       <div className="space-y-6">
-        <GlassCard>
+        <Card>
           <h3 className="text-lg font-semibold text-text-dark mb-4">
             {texts.title}
           </h3>
@@ -144,7 +144,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({
             <textarea
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              className="w-full bg-background-dark border-border-dark rounded-md p-3 text-text-dark h-28 focus:ring-primary/50 focus:border-primary"
+              className="w-full bg-border-dark border-border-dark rounded-md p-3 text-text-dark h-28 focus:ring-primary/50 focus:border-primary focus:bg-component-dark transition-colors"
               placeholder={texts.placeholder}
             />
             <div>
@@ -156,7 +156,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({
                 onChange={(e) =>
                   setContentType(e.target.value as ContentType)
                 }
-                className="w-full bg-background-dark border-border-dark rounded-md py-2 px-3 text-text-dark focus:ring-primary/50 focus:border-primary">
+                className="w-full bg-border-dark border-border-dark rounded-md py-2 px-3 text-text-dark focus:ring-primary/50 focus:border-primary focus:bg-component-dark transition-colors">
                 {(Object.keys(texts.content_types) as ContentType[]).map(
                   (type) => (
                     <option key={type} value={type}>
@@ -167,9 +167,9 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({
               </select>
             </div>
           </div>
-        </GlassCard>
+        </Card>
 
-        <GlassCard>
+        <Card>
           <h3 className="text-lg font-semibold text-text-dark mb-4">
             {texts.generate_title}
           </h3>
@@ -189,10 +189,10 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({
               </>
             )}
           </button>
-        </GlassCard>
+        </Card>
 
         {result && (
-          <GlassCard className="animate-fade-in">
+          <Card className="animate-fade-in relative">
             <h3 className="text-xl font-bold text-text-dark mb-3">
               {texts.result_title}
             </h3>
@@ -201,15 +201,15 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({
             </pre>
             <button
               onClick={handleCopy}
-              className="absolute top-3 right-3 p-2 text-text-secondary hover:text-text-dark bg-component-dark rounded-full transition-colors hover:bg-primary-start">
+              className="absolute top-4 right-4 p-2 text-text-secondary hover:text-text-dark bg-border-dark rounded-full transition-colors hover:bg-primary-start">
               <ClipboardIcon className="w-5 h-5" />
             </button>
             {isCopied && (
-              <span className="absolute top-3.5 right-14 text-xs bg-green-600 text-white px-2 py-1 rounded-md animate-fade-in">
+              <span className="absolute top-5 right-16 text-xs bg-green-600 text-white px-2 py-1 rounded-md animate-fade-in">
                 {texts.copied}
               </span>
             )}
-          </GlassCard>
+          </Card>
         )}
       </div>
     </div>

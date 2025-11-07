@@ -78,8 +78,15 @@ const SettingsSection: React.FC<{title: string; children: React.ReactNode}> = ({
     <h2 className="text-sm font-bold uppercase text-text-secondary px-4 pb-2 pt-2">
       {title}
     </h2>
-    <div className="flex flex-col bg-component-dark/30 rounded-xl overflow-hidden border border-white/10 backdrop-blur-lg shadow-lg">
-      {children}
+    <div className="bg-component-dark rounded-xl border border-border-dark overflow-hidden">
+      {React.Children.map(children, (child, index) => (
+        <>
+          {child}
+          {index < React.Children.count(children) - 1 && (
+            <hr className="border-border-dark ml-16" />
+          )}
+        </>
+      ))}
     </div>
   </div>
 );
@@ -90,49 +97,44 @@ const SettingsRow: React.FC<{
   onClick?: () => void;
   isDestructive?: boolean;
   rightContent?: React.ReactNode;
-  hasDivider?: boolean;
 }> = ({
   icon,
   label,
   onClick,
   isDestructive = false,
   rightContent,
-  hasDivider = true,
 }) => (
-  <>
-    <div
-      onClick={onClick}
-      className={`flex items-center gap-4 px-4 min-h-14 justify-between transition-colors duration-200 ${
-        onClick
-          ? isDestructive
-            ? 'cursor-pointer hover:bg-destructive/10'
-            : 'cursor-pointer hover:bg-white/5'
-          : ''
-      }`}>
-      <div className="flex items-center gap-4">
-        <div
-          className={`flex items-center justify-center shrink-0 size-10 ${
-            isDestructive ? 'text-destructive' : 'text-primary'
-          }`}>
-          {typeof icon === 'string' ? (
-            <span className="material-symbols-outlined">{icon}</span>
-          ) : (
-            icon
-          )}
-        </div>
-        <p
-          className={`text-base flex-1 truncate ${
-            isDestructive
-              ? 'text-destructive font-semibold'
-              : 'text-text-dark font-normal'
-          }`}>
-          {label}
-        </p>
+  <div
+    onClick={onClick}
+    className={`flex items-center gap-4 px-4 min-h-[56px] justify-between transition-colors duration-200 ${
+      onClick
+        ? isDestructive
+          ? 'cursor-pointer hover:bg-destructive/10'
+          : 'cursor-pointer hover:bg-white/5'
+        : ''
+    }`}>
+    <div className="flex items-center gap-4">
+      <div
+        className={`flex items-center justify-center shrink-0 size-8 rounded-md ${
+          isDestructive ? 'bg-destructive/20 text-destructive' : 'bg-primary/20 text-primary'
+        }`}>
+        {typeof icon === 'string' ? (
+          <span className="material-symbols-outlined text-xl">{icon}</span>
+        ) : (
+          icon
+        )}
       </div>
-      <div className="shrink-0">{rightContent}</div>
+      <p
+        className={`text-base flex-1 truncate ${
+          isDestructive
+            ? 'text-destructive font-semibold'
+            : 'text-text-dark font-normal'
+        }`}>
+        {label}
+      </p>
     </div>
-    {hasDivider && <hr className="border-border-dark mx-4" />}
-  </>
+    <div className="shrink-0">{rightContent}</div>
+  </div>
 );
 
 export const Settings: React.FC<PageProps> = ({
@@ -155,7 +157,6 @@ export const Settings: React.FC<PageProps> = ({
 
   const groupedTabs = TABS_CONFIG.reduce(
     (acc, tab) => {
-      // Exclude dashboard, but keep settings
       if (tab.id === 'dashboard') return acc;
       if (!acc[tab.group]) {
         acc[tab.group] = [];
@@ -168,7 +169,7 @@ export const Settings: React.FC<PageProps> = ({
   const groupOrder: Group[] = ['Create', 'Refine', 'Strategy', 'General'];
 
   const renderMainView = () => (
-    <div className="flex flex-col gap-8 p-4">
+    <div className="flex flex-col gap-8 p-4 pb-24">
       {groupOrder.map(
         (group) =>
           groupedTabs[group] &&
@@ -176,13 +177,13 @@ export const Settings: React.FC<PageProps> = ({
             <SettingsSection
               key={group}
               title={GROUP_LABELS[group][language === 'english' ? 'en' : 'ar']}>
-              {groupedTabs[group].map((tab, index) => {
+              {groupedTabs[group].map((tab) => {
                 const Icon = tab.icon;
                 const isSettingsButton = tab.id === 'settings';
                 return (
                   <SettingsRow
                     key={tab.id}
-                    icon={<Icon className="w-6 h-6 text-primary" />}
+                    icon={<Icon className="w-5 h-5" />}
                     label={tab.label[language === 'english' ? 'en' : 'ar']}
                     onClick={() => {
                       if (isSettingsButton) {
@@ -196,7 +197,6 @@ export const Settings: React.FC<PageProps> = ({
                         chevron_right
                       </span>
                     }
-                    hasDivider={index < groupedTabs[group].length - 1}
                   />
                 );
               })}
@@ -209,7 +209,7 @@ export const Settings: React.FC<PageProps> = ({
   const renderSettingsView = () => (
     <div className="animate-fade-in">
       {/* Sub-header for Settings */}
-      <div className="flex items-center p-2 border-b border-border-dark sticky top-[73px] bg-background-dark/80 backdrop-blur-md z-10">
+      <div className="flex items-center p-2 border-b border-border-dark sticky top-[73px] bg-background-dark/80 backdrop-blur-md z-10 h-[56px]">
         <button
           onClick={() => setView('main')}
           className="p-2 text-text-secondary hover:text-text-dark rounded-full transition-colors"
@@ -218,16 +218,13 @@ export const Settings: React.FC<PageProps> = ({
             {dir === 'rtl' ? 'arrow_forward' : 'arrow_back'}
           </span>
         </button>
-        <h2
-          className={`text-lg font-bold text-text-dark ${
-            dir === 'rtl' ? 'mr-auto' : 'ml-auto'
-          }`}>
+        <h2 className="text-lg font-bold text-text-dark absolute left-1/2 -translate-x-1/2">
           {texts.settingsTitle}
         </h2>
       </div>
 
       {/* Settings content */}
-      <div className="flex flex-col gap-8 p-4">
+      <div className="flex flex-col gap-8 p-4 pb-24">
         <SettingsSection title={texts.sections.account}>
           <SettingsRow
             icon="person"
@@ -264,7 +261,6 @@ export const Settings: React.FC<PageProps> = ({
             label={texts.rows.logOut}
             isDestructive
             onClick={logout}
-            hasDivider={false}
           />
         </SettingsSection>
 
@@ -307,7 +303,6 @@ export const Settings: React.FC<PageProps> = ({
             icon="dark_mode"
             label={texts.rows.theme}
             onClick={() => {}}
-            hasDivider={false}
             rightContent={
               <div className="shrink-0 flex items-center gap-2">
                 <p className="text-text-secondary text-sm">
@@ -364,7 +359,6 @@ export const Settings: React.FC<PageProps> = ({
             icon="description"
             label={texts.rows.terms}
             onClick={() => {}}
-            hasDivider={false}
             rightContent={
               <div className="text-text-secondary flex size-7 items-center justify-center">
                 <span className="material-symbols-outlined">

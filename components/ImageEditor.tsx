@@ -64,12 +64,12 @@ function fileToBase64(file: File): Promise<{base64: string; mimeType: string}> {
   });
 }
 
-const GlassCard: React.FC<{children: React.ReactNode; className?: string}> = ({
+const Card: React.FC<{children: React.ReactNode; className?: string}> = ({
   children,
   className,
 }) => (
   <div
-    className={`p-6 bg-component-dark/30 rounded-xl border border-white/10 backdrop-blur-lg shadow-lg ${className}`}>
+    className={`p-6 bg-component-dark rounded-xl border border-border-dark shadow-lg ${className}`}>
     {children}
   </div>
 );
@@ -157,7 +157,7 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({language}) => {
         />
       )}
       <div className="space-y-6">
-        <GlassCard>
+        <Card>
           <h3 className="text-lg font-semibold text-text-dark mb-4">
             {texts.upload_title}
           </h3>
@@ -186,9 +186,9 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({language}) => {
               </div>
             )}
           </div>
-        </GlassCard>
+        </Card>
 
-        <GlassCard
+        <Card
           className={`transition-opacity ${
             originalImageUrl ? 'opacity-100' : 'opacity-50'
           }`}>
@@ -198,7 +198,7 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({language}) => {
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            className="w-full bg-background-dark border-border-dark rounded-md p-3 text-text-dark h-24 focus:ring-primary/50 focus:border-primary"
+            className="w-full bg-border-dark border-border-dark rounded-md p-3 text-text-dark h-24 focus:ring-primary/50 focus:border-primary focus:bg-component-dark transition-colors"
             placeholder={texts.placeholder}
             disabled={!originalImageUrl}
           />
@@ -218,10 +218,10 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({language}) => {
               </>
             )}
           </button>
-        </GlassCard>
+        </Card>
 
         {editedImageUrl && (
-          <GlassCard className="animate-fade-in">
+          <Card className="animate-fade-in">
             <h3 className="text-xl font-bold text-center text-text-dark mb-4">
               {texts.comparison_title}
             </h3>
@@ -253,7 +253,7 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({language}) => {
                 </a>
               </div>
             </div>
-          </GlassCard>
+          </Card>
         )}
       </div>
     </div>

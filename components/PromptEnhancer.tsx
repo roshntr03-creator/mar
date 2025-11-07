@@ -70,12 +70,12 @@ const TEXTS: Record<Language, any> = {
   },
 };
 
-const GlassCard: React.FC<{children: React.ReactNode; className?: string}> = ({
+const Card: React.FC<{children: React.ReactNode; className?: string}> = ({
   children,
   className,
 }) => (
   <div
-    className={`p-6 bg-component-dark/30 rounded-xl border border-white/10 backdrop-blur-lg shadow-lg ${className}`}>
+    className={`p-6 bg-component-dark rounded-xl border border-border-dark shadow-lg ${className}`}>
     {children}
   </div>
 );
@@ -220,17 +220,17 @@ export const PromptEnhancer: React.FC<PromptEnhancerProps> = ({language}) => {
         />
       )}
       <div className="space-y-6">
-        <GlassCard>
+        <Card>
           <h3 className="text-lg font-semibold text-text-dark mb-4">
             {texts.title}
           </h3>
           <textarea
             value={simplePrompt}
             onChange={(e) => setSimplePrompt(e.target.value)}
-            className="w-full bg-background-dark border-border-dark rounded-md p-3 text-text-dark h-28 focus:ring-primary/50 focus:border-primary"
+            className="w-full bg-border-dark border-border-dark rounded-md p-3 text-text-dark h-28 focus:ring-primary/50 focus:border-primary focus:bg-component-dark transition-colors"
             placeholder={texts.placeholder}
           />
-        </GlassCard>
+        </Card>
 
         <div className="text-center">
           <button
@@ -252,7 +252,7 @@ export const PromptEnhancer: React.FC<PromptEnhancerProps> = ({language}) => {
         </div>
 
         {enhancedPromptData && (
-          <GlassCard className="animate-fade-in">
+          <Card className="animate-fade-in">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold text-text-dark">
                 {texts.result_title}
@@ -295,7 +295,7 @@ export const PromptEnhancer: React.FC<PromptEnhancerProps> = ({language}) => {
                 value={enhancedPromptData.negativePrompt}
               />
             </dl>
-          </GlassCard>
+          </Card>
         )}
       </div>
     </div>

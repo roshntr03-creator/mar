@@ -50,12 +50,12 @@ const TEXTS: Record<Language, any> = {
   },
 };
 
-const GlassCard: React.FC<{children: React.ReactNode; className?: string}> = ({
+const Card: React.FC<{children: React.ReactNode; className?: string}> = ({
   children,
   className,
 }) => (
   <div
-    className={`p-6 bg-component-dark/30 rounded-xl border border-white/10 backdrop-blur-lg shadow-lg ${className}`}>
+    className={`p-6 bg-component-dark rounded-xl border border-border-dark shadow-lg ${className}`}>
     {children}
   </div>
 );
@@ -142,7 +142,7 @@ export const PostAssistant: React.FC<PostAssistantProps> = ({language}) => {
         />
       )}
       <div className="space-y-6">
-        <GlassCard>
+        <Card>
           <h3 className="text-lg font-semibold text-text-dark mb-4">
             {texts.title}
           </h3>
@@ -150,7 +150,7 @@ export const PostAssistant: React.FC<PostAssistantProps> = ({language}) => {
             <textarea
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              className="w-full bg-background-dark border-border-dark rounded-md p-3 text-text-dark h-28 focus:ring-primary/50 focus:border-primary"
+              className="w-full bg-border-dark border-border-dark rounded-md p-3 text-text-dark h-28 focus:ring-primary/50 focus:border-primary focus:bg-component-dark transition-colors"
               placeholder={texts.placeholder}
             />
             <div>
@@ -160,7 +160,7 @@ export const PostAssistant: React.FC<PostAssistantProps> = ({language}) => {
               <select
                 value={platform}
                 onChange={(e) => setPlatform(e.target.value as Platform)}
-                className="w-full bg-background-dark border-border-dark rounded-md py-2 px-3 text-text-dark focus:ring-primary/50 focus:border-primary">
+                className="w-full bg-border-dark border-border-dark rounded-md py-2 px-3 text-text-dark focus:ring-primary/50 focus:border-primary focus:bg-component-dark transition-colors">
                 <option>Instagram</option>
                 <option>X (Twitter)</option>
                 <option>Facebook</option>
@@ -168,9 +168,9 @@ export const PostAssistant: React.FC<PostAssistantProps> = ({language}) => {
               </select>
             </div>
           </div>
-        </GlassCard>
+        </Card>
 
-        <GlassCard>
+        <Card>
           <h3 className="text-lg font-semibold text-text-dark mb-4">
             {texts.generate_title}
           </h3>
@@ -190,7 +190,7 @@ export const PostAssistant: React.FC<PostAssistantProps> = ({language}) => {
               </>
             )}
           </button>
-        </GlassCard>
+        </Card>
 
         {posts.length > 0 && (
           <div className="space-y-4 animate-fade-in">
@@ -200,13 +200,13 @@ export const PostAssistant: React.FC<PostAssistantProps> = ({language}) => {
             {posts.map((post, index) => (
               <div
                 key={index}
-                className="p-4 bg-component-dark/30 rounded-xl shadow-md relative border border-white/10 backdrop-blur-lg">
+                className="p-4 bg-component-dark rounded-xl shadow-md relative border border-border-dark">
                 <p className="text-text-dark whitespace-pre-wrap pr-12">
                   {post.content}
                 </p>
                 <button
                   onClick={() => handleCopy(post.content, index)}
-                  className="absolute top-3 right-3 p-2 text-text-secondary hover:text-text-dark bg-background-dark rounded-full transition-colors hover:bg-primary-start">
+                  className="absolute top-3 right-3 p-2 text-text-secondary hover:text-text-dark bg-border-dark rounded-full transition-colors hover:bg-primary-start">
                   <ClipboardIcon className="w-5 h-5" />
                 </button>
                 {copiedIndex === index && (

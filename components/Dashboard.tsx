@@ -144,15 +144,15 @@ export const Dashboard: React.FC<PageProps> = ({
   }, [language, texts.errorFetchingTip]);
 
   const TipCardSkeleton = () => (
-    <div className="relative overflow-hidden bg-component-dark/30 p-5 rounded-xl border border-white/10 backdrop-blur-lg shadow-lg">
+    <div className="relative overflow-hidden bg-component-dark p-5 rounded-xl border border-border-dark">
       <div className="animate-pulse">
         <div className="flex items-center gap-4 mb-3">
-          <div className="w-8 h-8 rounded-full bg-border-dark/50"></div>
-          <div className="h-5 w-48 bg-border-dark/50 rounded-md"></div>
+          <div className="w-8 h-8 rounded-full bg-border-dark"></div>
+          <div className="h-5 w-48 bg-border-dark rounded-md"></div>
         </div>
         <div className="space-y-2">
-          <div className="h-4 w-full bg-border-dark/50 rounded-md"></div>
-          <div className="h-4 w-3/4 bg-border-dark/50 rounded-md"></div>
+          <div className="h-4 w-full bg-border-dark rounded-md"></div>
+          <div className="h-4 w-3/4 bg-border-dark rounded-md"></div>
         </div>
       </div>
       <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
@@ -162,7 +162,7 @@ export const Dashboard: React.FC<PageProps> = ({
   return (
     <div className="max-w-4xl mx-auto p-4 animate-fade-in pb-24 space-y-8">
       <div>
-        <h1 className="text-5xl font-bold text-gradient">{texts.welcome}</h1>
+        <h1 className="text-4xl sm:text-5xl font-bold text-gradient">{texts.welcome}</h1>
         {brandName && (
           <p className="text-lg text-text-secondary mt-1">
             {language === 'arabic'
@@ -176,7 +176,7 @@ export const Dashboard: React.FC<PageProps> = ({
       {isLoadingTip ? (
         <TipCardSkeleton />
       ) : (
-        <div className="bg-component-dark/30 p-5 rounded-xl border border-white/10 backdrop-blur-lg shadow-lg">
+        <div className="bg-component-dark p-5 rounded-xl border border-border-dark shadow-lg">
           <div className="flex items-center gap-3 mb-3">
             <LightbulbIcon className="w-7 h-7 text-primary" />
             <h2 className="text-lg font-bold text-text-dark">
@@ -194,7 +194,7 @@ export const Dashboard: React.FC<PageProps> = ({
         <h2 className="text-xl font-bold text-text-dark mb-4">
           {texts.quickLinks}
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           {QUICK_LINKS.map(({id, icon: Icon}) => {
             const config = TABS_CONFIG.find((tab) => tab.id === id);
             if (!config) return null;
@@ -202,7 +202,7 @@ export const Dashboard: React.FC<PageProps> = ({
               <button
                 key={id}
                 onClick={() => setActiveTab && setActiveTab(id)}
-                className="bg-component-dark/30 p-4 rounded-xl border border-white/10 backdrop-blur-lg text-center hover:border-primary/50 hover:bg-primary/10 transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-[1.03] group hover:shadow-glow">
+                className="bg-component-dark p-4 rounded-xl border border-border-dark text-center hover:border-primary/50 transition-all duration-300 ease-in-out transform hover:-translate-y-1 group hover:shadow-glow">
                 <div className="flex items-center justify-center w-12 h-12 bg-border-dark rounded-full mx-auto mb-3 group-hover:bg-primary/20 transition-colors">
                   <Icon className="w-7 h-7 text-text-secondary group-hover:text-primary transition-colors" />
                 </div>
@@ -220,15 +220,15 @@ export const Dashboard: React.FC<PageProps> = ({
         <h2 className="text-xl font-bold text-text-dark mb-4">
           {texts.recentActivity}
         </h2>
-        <div className="bg-component-dark/30 p-4 rounded-xl border border-white/10 backdrop-blur-lg shadow-lg">
-          <ul className="divide-y divide-white/10">
-            {RECENT_ACTIVITY.map(({id, icon: Icon, time}) => {
+        <div className="bg-component-dark p-4 rounded-xl border border-border-dark shadow-lg">
+          <ul className="divide-y divide-border-dark">
+            {RECENT_ACTIVITY.map(({id, icon: Icon, time}, index) => {
               const config = TABS_CONFIG.find((tab) => tab.id === id);
               if (!config) return null;
               return (
                 <li
                   key={id}
-                  className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+                  className={`flex items-center justify-between py-3 ${index === 0 ? 'pt-0' : ''} ${index === RECENT_ACTIVITY.length - 1 ? 'pb-0' : ''}`}>
                   <div className="flex items-center gap-4">
                     <Icon className="w-8 h-8 text-primary" />
                     <div>

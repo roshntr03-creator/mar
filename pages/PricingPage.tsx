@@ -132,7 +132,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({onClose, language}) => 
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-12">
           {/* Starter Plan */}
-          <div className="flex flex-col p-6 bg-component-dark/50 rounded-xl border border-border-dark backdrop-blur-sm">
+          <div className="flex flex-col p-6 bg-component-dark rounded-xl border border-border-dark">
             <h3 className="text-2xl font-bold text-text-dark">
               {texts.plans.starter}
             </h3>
@@ -152,8 +152,8 @@ export const PricingPage: React.FC<PricingPageProps> = ({onClose, language}) => 
           </div>
 
           {/* Pro Plan */}
-          <div className="relative flex flex-col p-6 bg-component-dark/50 rounded-xl border-2 border-transparent shadow-2xl shadow-primary/30 bg-clip-padding 
-            before:content-[''] before:absolute before:inset-0 before:z-[-10] before:bg-gradient-to-br before:from-primary-start before:to-primary-end before:rounded-[0.8rem] before:p-[2px] backdrop-blur-sm">
+          <div className="relative flex flex-col p-6 bg-component-dark rounded-xl border-2 border-transparent shadow-2xl shadow-primary/30 bg-clip-padding 
+            before:content-[''] before:absolute before:inset-0 before:z-[-10] before:bg-gradient-to-br before:from-primary-start before:to-primary-end before:rounded-[0.8rem] before:p-[2px]">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gradient-to-r from-primary-start to-primary-end text-white text-sm font-semibold rounded-full">
               {texts.mostPopular}
             </div>
@@ -180,7 +180,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({onClose, language}) => 
           </div>
 
           {/* Business Plan */}
-          <div className="flex flex-col p-6 bg-component-dark/50 rounded-xl border border-border-dark backdrop-blur-sm">
+          <div className="flex flex-col p-6 bg-component-dark rounded-xl border border-border-dark">
             <h3 className="text-2xl font-bold text-text-dark">
               {texts.plans.business}
             </h3>

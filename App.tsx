@@ -467,19 +467,21 @@ export function App() {
     <div
       dir={dir}
       className="min-h-screen bg-background-dark text-text-dark font-display">
-      <header className="sticky top-0 z-30 flex items-center justify-between p-4 bg-background-dark/80 backdrop-blur-md border-b border-border-dark">
+      <header className="sticky top-0 z-30 grid grid-cols-3 items-center p-4 bg-background-dark/80 backdrop-blur-md border-b border-border-dark h-[73px]">
         <div className="w-10 h-10" />
-        <h1 className="text-xl font-bold text-text-dark">{title}</h1>
-        <button
-          onClick={() => setShowAiCoach(true)}
-          className="w-10 h-10 p-2 rounded-full text-primary hover:bg-component-dark transition-all hover:scale-110"
-          aria-label={
-            language === 'english'
-              ? 'Open AI Coach'
-              : 'فتح مدرب الذكاء الاصطناعي'
-          }>
-          <AiCoachIcon />
-        </button>
+        <h1 className="text-lg font-bold text-text-dark text-center truncate">{title}</h1>
+        <div className="flex justify-end">
+            <button
+              onClick={() => setShowAiCoach(true)}
+              className="w-10 h-10 p-2 rounded-full text-primary hover:bg-component-dark transition-all hover:scale-110"
+              aria-label={
+                language === 'english'
+                  ? 'Open AI Coach'
+                  : 'فتح مدرب الذكاء الاصطناعي'
+              }>
+              <AiCoachIcon />
+            </button>
+        </div>
       </header>
 
       <main className="pb-20">

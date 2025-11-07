@@ -136,7 +136,7 @@ const CreationCard: React.FC<{
   const hasThumbnail = job.thumbnailUrl && job.thumbnailUrl.startsWith('data:');
 
   return (
-    <div className="bg-component-dark/30 rounded-xl border border-white/10 backdrop-blur-lg shadow-lg overflow-hidden">
+    <div className="bg-component-dark rounded-xl border border-border-dark shadow-lg overflow-hidden">
       <div className="p-4">
         <div className="flex justify-between items-start gap-4">
           <div className="flex items-start gap-4">
@@ -233,7 +233,7 @@ export const Creations: React.FC<CreationsProps> = ({language, setActiveTab}) =>
     <div className="max-w-3xl mx-auto p-4 animate-fade-in pb-24">
       {jobs.length === 0 ? (
         <div className="text-center mt-16 flex flex-col items-center">
-          <div className="w-24 h-24 flex items-center justify-center bg-component-dark/30 rounded-full border border-white/10 backdrop-blur-lg">
+          <div className="w-24 h-24 flex items-center justify-center bg-component-dark rounded-full border border-border-dark">
             <SparklesIcon className="w-12 h-12 text-primary" />
           </div>
           <h2 className="text-2xl font-bold text-text-dark mt-6">

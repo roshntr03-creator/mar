@@ -13,13 +13,13 @@ interface CompetitorAnalysisProps {
   language: Language;
 }
 
-const GlassCard: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
+const Card: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   children,
   className,
   ...props
 }) => (
   <div
-    className={`p-6 bg-component-dark/30 rounded-xl border border-white/10 backdrop-blur-lg shadow-lg ${className}`}
+    className={`p-6 bg-component-dark rounded-xl border border-border-dark shadow-lg ${className}`}
     {...props}>
     {children}
   </div>
@@ -114,7 +114,7 @@ export const CompetitorAnalysis: React.FC<CompetitorAnalysisProps> = ({
         />
       )}
       <div className="space-y-6">
-        <GlassCard>
+        <Card>
           <h3 className="text-lg font-semibold text-text-dark mb-4">
             {language === 'arabic'
               ? '١. أدخل رابط المنافس'
@@ -124,12 +124,12 @@ export const CompetitorAnalysis: React.FC<CompetitorAnalysisProps> = ({
             type="url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            className="w-full bg-background-dark border-border-dark rounded-md p-3 text-text-dark focus:ring-primary/50 focus:border-primary"
+            className="w-full bg-border-dark border-border-dark rounded-md p-3 text-text-dark focus:ring-primary/50 focus:border-primary focus:bg-component-dark transition-colors"
             placeholder="https://www.example.com"
           />
-        </GlassCard>
+        </Card>
 
-        <GlassCard>
+        <Card>
           <h3 className="text-lg font-semibold text-text-dark mb-4">
             {language === 'arabic' ? '٢. ابدأ التحليل' : '2. Start Analysis'}
           </h3>
@@ -155,10 +155,10 @@ export const CompetitorAnalysis: React.FC<CompetitorAnalysisProps> = ({
               </>
             )}
           </button>
-        </GlassCard>
+        </Card>
 
         {analysis && (
-          <GlassCard
+          <Card
             className="animate-fade-in"
             dir={language === 'arabic' ? 'rtl' : 'ltr'}>
             <h3 className="text-2xl font-bold text-text-dark mb-4">
@@ -205,7 +205,7 @@ export const CompetitorAnalysis: React.FC<CompetitorAnalysisProps> = ({
                 <AnalysisList items={analysis.howToCompete} />
               </AnalysisSection>
             </div>
-          </GlassCard>
+          </Card>
         )}
       </div>
     </div>

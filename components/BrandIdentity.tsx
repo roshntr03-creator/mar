@@ -67,12 +67,12 @@ const TEXTS: Record<Language, any> = {
   },
 };
 
-const GlassCard: React.FC<{children: React.ReactNode; className?: string}> = ({
+const Card: React.FC<{children: React.ReactNode; className?: string}> = ({
   children,
   className,
 }) => (
   <div
-    className={`p-6 bg-component-dark/30 rounded-xl border border-white/10 backdrop-blur-lg shadow-lg ${className}`}>
+    className={`p-6 bg-component-dark rounded-xl border border-border-dark shadow-lg ${className}`}>
     {children}
   </div>
 );
@@ -186,7 +186,7 @@ export const BrandIdentity: React.FC<BrandIdentityProps> = ({language}) => {
   if (savedProfile && !isLoading) {
     return (
       <div className="max-w-4xl mx-auto p-4 animate-fade-in pb-24">
-        <GlassCard>
+        <Card>
           <div className="flex justify-between items-start mb-4">
             <h3 className="text-3xl font-bold text-gradient flex items-center gap-3">
               <ShieldCheckIcon className="w-8 h-8 text-primary" />
@@ -219,7 +219,7 @@ export const BrandIdentity: React.FC<BrandIdentityProps> = ({language}) => {
               content={savedProfile.keyKeywords}
             />
           </div>
-        </GlassCard>
+        </Card>
       </div>
     );
   }
@@ -237,7 +237,7 @@ export const BrandIdentity: React.FC<BrandIdentityProps> = ({language}) => {
         />
       )}
       <div className="space-y-6">
-        <GlassCard>
+        <Card>
           <h3 className="text-lg font-semibold text-text-dark mb-3">
             {texts.provideInfoTitle}
           </h3>
@@ -247,11 +247,11 @@ export const BrandIdentity: React.FC<BrandIdentityProps> = ({language}) => {
           <textarea
             value={analysisInput}
             onChange={(e) => setAnalysisInput(e.target.value)}
-            className="w-full bg-background-dark border-border-dark rounded-md p-3 text-text-dark h-40 focus:ring-primary/50 focus:border-primary"
+            className="w-full bg-border-dark border-border-dark rounded-md p-3 text-text-dark h-40 focus:ring-primary/50 focus:border-primary focus:bg-component-dark transition-colors"
             placeholder={texts.placeholder}
           />
-        </GlassCard>
-        <GlassCard>
+        </Card>
+        <Card>
           <h3 className="text-lg font-semibold text-text-dark mb-4">
             {texts.defineIdentityTitle}
           </h3>
@@ -271,7 +271,7 @@ export const BrandIdentity: React.FC<BrandIdentityProps> = ({language}) => {
               </>
             )}
           </button>
-        </GlassCard>
+        </Card>
       </div>
     </div>
   );

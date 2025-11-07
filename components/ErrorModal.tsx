@@ -34,7 +34,7 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
       role="dialog"
       aria-labelledby="error-modal-title">
       <div
-        className="bg-component-dark/30 rounded-xl shadow-2xl w-full max-w-md relative p-8 m-4 text-center border border-white/10 backdrop-blur-lg"
+        className="bg-component-dark rounded-xl shadow-2xl w-full max-w-md relative p-8 m-4 text-center border border-border-dark"
         onClick={(e) => e.stopPropagation()}>
         <button
           onClick={onClose}

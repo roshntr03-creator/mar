@@ -116,12 +116,12 @@ const TEXTS: Record<'english' | 'arabic', any> = {
   },
 };
 
-const GlassCard: React.FC<{children: React.ReactNode; className?: string}> = ({
+const Card: React.FC<{children: React.ReactNode; className?: string}> = ({
   children,
   className,
 }) => (
   <div
-    className={`p-6 bg-component-dark/30 rounded-xl border border-white/10 backdrop-blur-lg shadow-lg ${className}`}>
+    className={`p-6 bg-component-dark rounded-xl border border-border-dark shadow-lg ${className}`}>
     {children}
   </div>
 );
@@ -236,14 +236,14 @@ export const PromoVideo: React.FC<PromoVideoProps> = ({
         />
       )}
       <div className="space-y-6">
-        <GlassCard>
+        <Card>
           <h3 className="text-lg font-semibold text-text-dark mb-4">
             {texts.describe_title}
           </h3>
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            className="w-full bg-background-dark border-border-dark rounded-md p-3 text-text-dark h-40 focus:ring-primary/50 focus:border-primary"
+            className="w-full bg-border-dark border-border-dark rounded-md p-3 text-text-dark h-40 focus:ring-primary/50 focus:border-primary focus:bg-component-dark transition-colors"
             placeholder={texts.placeholder}
           />
           <h4 className="text-md font-semibold text-text-dark mt-6 mb-3">
@@ -257,7 +257,7 @@ export const PromoVideo: React.FC<PromoVideoProps> = ({
               <select
                 value={aspectRatio}
                 onChange={(e) => setAspectRatio(e.target.value as AspectRatio)}
-                className="w-full bg-background-dark border-border-dark rounded-md py-2 px-3 text-text-dark focus:ring-primary/50 focus:border-primary">
+                className="w-full bg-border-dark border-border-dark rounded-md py-2 px-3 text-text-dark focus:ring-primary/50 focus:border-primary focus:bg-component-dark transition-colors">
                 {(Object.keys(texts.aspect_ratios) as AspectRatio[]).map(
                   (ar) => (
                     <option key={ar} value={ar}>
@@ -274,7 +274,7 @@ export const PromoVideo: React.FC<PromoVideoProps> = ({
               <select
                 value={videoStyle}
                 onChange={(e) => setVideoStyle(e.target.value as VideoStyle)}
-                className="w-full bg-background-dark border-border-dark rounded-md py-2 px-3 text-text-dark focus:ring-primary/50 focus:border-primary">
+                className="w-full bg-border-dark border-border-dark rounded-md py-2 px-3 text-text-dark focus:ring-primary/50 focus:border-primary focus:bg-component-dark transition-colors">
                 {(Object.keys(texts.styles) as VideoStyle[]).map((style) => (
                   <option key={style} value={style}>
                     {texts.styles[style]}
@@ -289,7 +289,7 @@ export const PromoVideo: React.FC<PromoVideoProps> = ({
               <select
                 value={pacing}
                 onChange={(e) => setPacing(e.target.value as Pacing)}
-                className="w-full bg-background-dark border-border-dark rounded-md py-2 px-3 text-text-dark focus:ring-primary/50 focus:border-primary">
+                className="w-full bg-border-dark border-border-dark rounded-md py-2 px-3 text-text-dark focus:ring-primary/50 focus:border-primary focus:bg-component-dark transition-colors">
                 {(Object.keys(texts.pacings) as Pacing[]).map((pacing) => (
                   <option key={pacing} value={pacing}>
                     {texts.pacings[pacing]}
@@ -306,7 +306,7 @@ export const PromoVideo: React.FC<PromoVideoProps> = ({
                 onChange={(e) =>
                   setVideoLengthOption(e.target.value as VideoLengthOption)
                 }
-                className="w-full bg-background-dark border-border-dark rounded-md py-2 px-3 text-text-dark focus:ring-primary/50 focus:border-primary">
+                className="w-full bg-border-dark border-border-dark rounded-md py-2 px-3 text-text-dark focus:ring-primary/50 focus:border-primary focus:bg-component-dark transition-colors">
                 {(Object.keys(texts.structures) as VideoLengthOption[]).map(
                   (structure) => (
                     <option key={structure} value={structure}>
@@ -317,9 +317,9 @@ export const PromoVideo: React.FC<PromoVideoProps> = ({
               </select>
             </div>
           </div>
-        </GlassCard>
+        </Card>
 
-        <GlassCard>
+        <Card>
           <h3 className="text-lg font-semibold text-text-dark mb-4">
             {texts.generate_title}
           </h3>
@@ -330,7 +330,7 @@ export const PromoVideo: React.FC<PromoVideoProps> = ({
             <ClapperboardIcon className="w-6 h-6" />
             <span>{texts.generate_button}</span>
           </button>
-        </GlassCard>
+        </Card>
       </div>
     </div>
   );

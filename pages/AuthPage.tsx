@@ -76,7 +76,7 @@ const LanguageSwitcher: React.FC<{
   language: Language;
   setLanguage: (lang: Language) => void;
 }> = ({language, setLanguage}) => (
-  <div className="flex w-fit items-center gap-1 rounded-full bg-component-dark/50 p-1 border border-border-dark">
+  <div className="flex w-fit items-center gap-1 rounded-full bg-component-dark p-1 border border-border-dark">
     <button
       onClick={() => setLanguage('english')}
       className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors ${
@@ -122,7 +122,7 @@ const InputField: React.FC<{
         type={type}
         value={value}
         onChange={onChange}
-        className="w-full bg-background-dark border-border-dark rounded-md p-3 pl-10 text-text-dark focus:ring-primary/50 focus:border-primary"
+        className="w-full bg-border-dark border-border-dark rounded-md p-3 pl-10 text-text-dark focus:ring-primary/50 focus:border-primary focus:bg-component-dark transition-colors"
         required={required}
       />
     </div>
@@ -204,7 +204,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
       <div className="absolute top-4 left-4 right-4 flex justify-between items-center">
         <button
           onClick={() => setShowPricing(true)}
-          className="px-4 py-2 rounded-lg bg-component-dark/30 border border-white/10 text-text-secondary font-semibold hover:bg-border-dark hover:text-text-dark transition-colors text-sm backdrop-blur-lg">
+          className="px-4 py-2 rounded-lg bg-component-dark border border-border-dark text-text-secondary font-semibold hover:bg-border-dark hover:text-text-dark transition-colors text-sm">
           {texts.subscriptions}
         </button>
         <LanguageSwitcher language={language} setLanguage={setLanguage} />
@@ -216,7 +216,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
           <p className="text-text-secondary mt-2">{subtitle}</p>
         </div>
 
-        <div className="bg-component-dark/30 rounded-xl shadow-2xl border border-white/10 overflow-hidden backdrop-blur-lg">
+        <div className="bg-component-dark rounded-xl shadow-2xl border border-border-dark overflow-hidden">
           <div className="flex">
             <button
               onClick={() => handleTabChange('signin')}

@@ -102,8 +102,8 @@ export const PromptEnhancer: React.FC<PromptEnhancerProps> = ({language}) => {
     try {
       const systemInstruction =
         language === 'arabic'
-          ? 'أنت خبير عالمي في هندسة الأوامر. مهمتك هي أخذ فكرة أو أمر بسيط من المستخدم وتحويله إلى أمر مفصل ومنظم وفعال لنموذج صور AI متقدم. قم بتقسيم الأمر إلى الفئات التالية: الموضوع، النمط، التكوين، الإضاءة، لوحة الألوان، الحالة المزاجية، والأمر السلبي. املأ كل فئة بتفاصيل غنية ووصفية بناءً على مدخلات المستخدم لضمان نتيجة فنية عالية الجودة.'
-          : "You are a world-class prompt engineering expert. Your task is to take a user's simple idea or prompt and transform it into a detailed, structured, and effective prompt for an advanced generative AI image model. Break down the prompt into the following categories: subject, style, composition, lighting, color palette, mood, and negative prompt. Fill each category with rich, descriptive details based on the user's input to ensure a high-quality, artistic result.";
+          ? 'أنت خبير عالمي في هندسة الأوامر متخصص في إنشاء أوامر احترافية ومفصلة للغاية لنماذج صور الذكاء الاصطناعي المتقدمة مثل Midjourney أو Stable Diffusion. مهمتك هي أخذ فكرة بسيطة من المستخدم وتحويلها إلى أمر منظم وفعال للغاية. يجب أن يكون الناتج غنيًا بالتفاصيل الفنية والفنية.\n\nلكل فئة، قدم لغة محددة وملموسة. استخدم مصطلحات الكاميرا الفنية (مثل \'عدسة 35 مم، فتحة f/1.8\')، والأساليب الفنية المحددة (مثل \'أسلوب كارافاجيو وجريج روتكوفسكي\')، وتفاصيل العرض (مثل \'Unreal Engine 5، Octane Render، 8K، سينمائي\'). الهدف هو إنتاج أمر يولد تحفة فنية. كن مبدعًا وتوسع إلى ما هو أبعد من مدخلات المستخدم الأولية.'
+          : "You are a world-class prompt engineering expert specializing in creating hyper-detailed, professional prompts for advanced generative AI image models like Midjourney or Stable Diffusion. Your task is to take a user's simple idea and transform it into a structured, highly effective prompt. The output must be rich with technical and artistic details.\n\nFor each category, provide specific, concrete language. Use technical camera terms (e.g., '35mm lens, f/1.8 aperture'), specific artistic styles (e.g., 'style of Caravaggio and Greg Rutkowski'), and rendering details (e.g., 'Unreal Engine 5, Octane Render, 8K, cinematic'). The goal is to produce a prompt that generates a masterpiece. Be creative and elaborate far beyond the user's initial input.";
 
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
@@ -117,36 +117,37 @@ export const PromptEnhancer: React.FC<PromptEnhancerProps> = ({language}) => {
               subject: {
                 type: Type.STRING,
                 description:
-                  'The main subject of the prompt, described in detail.',
+                  'A highly detailed, vivid description of the main subject, including its appearance, actions, clothing, and environment. Be specific and imaginative.',
               },
               style: {
                 type: Type.STRING,
                 description:
-                  'The artistic style (e.g., Photorealistic, Anime, Impressionistic, 3D Render).',
+                  "The specific artistic style. Combine multiple styles if appropriate. Include artist names (e.g., 'by Artgerm and WLOP'), mediums (e.g., 'digital painting, oil on canvas'), and rendering engines (e.g., 'Octane Render, Unreal Engine').",
               },
               composition: {
                 type: Type.STRING,
                 description:
-                  'The camera angle and composition (e.g., Close-up, Wide shot, Rule of thirds).',
+                  "Detailed camera and composition settings. Specify camera angle (e.g., 'low-angle shot, aerial view'), shot type (e.g., 'extreme close-up, full body shot'), and lens (e.g., '85mm lens, f/1.4 aperture').",
               },
               lighting: {
                 type: Type.STRING,
                 description:
-                  'The lighting conditions (e.g., Golden hour, Studio lighting, Cinematic lighting).',
+                  "Precise lighting conditions. Use descriptive terms like 'dramatic Rembrandt lighting', 'volumetric god rays', 'neon backlighting', 'golden hour magic hour'.",
               },
               colorPalette: {
                 type: Type.STRING,
                 description:
-                  'The dominant colors or color scheme (e.g., Vibrant, Muted, Monochromatic).',
+                  "The specific color scheme and palette. Use evocative terms like 'vibrant neon synthwave palette', 'muted earthy tones', 'monochromatic with splashes of crimson'.",
               },
               mood: {
                 type: Type.STRING,
                 description:
-                  'The overall mood or atmosphere (e.g., Serene, Dramatic, Mysterious).',
+                  "The overall atmosphere and emotion of the image. Be specific: 'eerie and mysterious with a sense of foreboding', 'serene and tranquil, evoking a feeling of peace'.",
               },
               negativePrompt: {
                 type: Type.STRING,
-                description: 'Elements to exclude from the result.',
+                description:
+                  "A comprehensive list of elements to exclude to improve quality, such as 'blurry, grainy, deformed, bad anatomy, extra limbs, ugly, poorly drawn hands'.",
               },
             },
             required: [

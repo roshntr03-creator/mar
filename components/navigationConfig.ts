@@ -4,6 +4,7 @@
 */
 import React from 'react';
 import {
+  AnalysisIcon,
   ClapperboardIcon,
   Cog6ToothIcon,
   DashboardIcon,
@@ -13,7 +14,6 @@ import {
   PhotoIcon,
   ShieldCheckIcon,
   SparklesIcon,
-  TelescopeIcon,
   UgcVideoIcon,
   WandIcon,
 } from './icons';
@@ -118,7 +118,7 @@ export const TABS_CONFIG: {
   {
     id: 'competitor_analysis',
     label: {en: 'Competitor Analysis', ar: 'تحليل المنافسين'},
-    icon: TelescopeIcon,
+    icon: AnalysisIcon,
     group: 'Strategy',
   },
   {

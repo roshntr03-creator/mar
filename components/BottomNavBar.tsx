@@ -6,10 +6,10 @@ import React from 'react';
 import {Tab} from './navigationConfig';
 import {
   Cog6ToothIcon,
+  CreationsIcon,
   DashboardIcon,
   PlusIcon,
   ShieldCheckIcon,
-  SparklesIcon,
 } from './icons';
 
 interface BottomNavBarProps {
@@ -28,7 +28,7 @@ const TABS: {id: Tab; icon: React.FC<any>; label: {en: string; ar: string}}[] =
     },
     {
       id: 'creations',
-      icon: SparklesIcon,
+      icon: CreationsIcon,
       label: {en: 'Creations', ar: 'إبداعاتي'},
     },
     {

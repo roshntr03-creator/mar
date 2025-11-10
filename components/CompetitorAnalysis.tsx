@@ -6,7 +6,7 @@ import React, {useState} from 'react';
 import {analyzeCompetitor} from '../services/gemini';
 import {AnalysisResult} from '../types';
 import {ErrorModal} from './ErrorModal';
-import {TelescopeIcon} from './icons';
+import {AnalysisIcon} from './icons';
 
 type Language = 'english' | 'arabic';
 interface CompetitorAnalysisProps {
@@ -146,7 +146,7 @@ export const CompetitorAnalysis: React.FC<CompetitorAnalysisProps> = ({
               </>
             ) : (
               <>
-                <TelescopeIcon className="w-6 h-6" />
+                <AnalysisIcon className="w-6 h-6" />
                 <span>
                   {language === 'arabic'
                     ? 'تحليل المنافس'

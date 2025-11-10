@@ -4,12 +4,12 @@
 */
 import React from 'react';
 import {
+  AnalysisIcon,
   ClapperboardIcon,
   DocumentTextIcon,
   LightbulbIcon,
   MegaphoneIcon,
   SparklesIcon,
-  TelescopeIcon,
   UgcVideoIcon,
   WandIcon,
 } from './icons';
@@ -68,7 +68,7 @@ const TABS_CONFIG: {
   {
     id: 'competitor_analysis',
     label: {en: 'Analysis', ar: 'تحليل'},
-    icon: TelescopeIcon,
+    icon: AnalysisIcon,
   },
   {
     id: 'content_generator',

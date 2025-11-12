@@ -10,6 +10,8 @@ const SORA_API_KEY = '8774ae5d8c69b9009c49a774e9b12555';
 const SORA_API_BASE_URL = 'https://api.kie.ai/api/v1/jobs';
 
 type AspectRatio = '1:1' | '16:9' | '9:16' | '4:3' | '3:4';
+type ImageResolution = '1K' | '2K' | '4K';
+type SquareQuality = 'square' | 'square_hd';
 type Language = 'english' | 'arabic';
 
 interface ImageGeneratorProps {
@@ -28,6 +30,12 @@ const TEXTS: Record<Language, any> = {
       '9:16': 'Vertical (9:16)',
       '4:3': 'Landscape (4:3)',
       '3:4': 'Portrait (3:4)',
+    },
+    image_resolution_label: 'Image Resolution',
+    square_quality_label: 'Square Quality',
+    qualities: {
+      standard: 'Standard',
+      hd: 'HD',
     },
     generate_title: '2. Generate',
     generate_button: 'Generate Image',
@@ -48,6 +56,12 @@ const TEXTS: Record<Language, any> = {
       '9:16': 'عمودي (٩:١٦)',
       '4:3': 'أفقي (٤:٣)',
       '3:4': 'بورتريه (٣:٤)',
+    },
+    image_resolution_label: 'دقة الصورة',
+    square_quality_label: 'جودة المربع',
+    qualities: {
+      standard: 'قياسي',
+      hd: 'عالي الدقة',
     },
     generate_title: '٢. توليد',
     generate_button: 'توليد الصورة',
@@ -70,9 +84,32 @@ const Card: React.FC<{children: React.ReactNode; className?: string}> = ({
   </div>
 );
 
+const OptionButton: React.FC<{
+  isSelected: boolean;
+  onClick: () => void;
+  label: string;
+}> = ({isSelected, onClick, label}) => (
+  <button
+    onClick={onClick}
+    className={`relative flex-grow basis-1/2 p-3 rounded-lg border-2 transition-all duration-200 flex flex-col items-center justify-center gap-2 text-center overflow-hidden
+      ${
+        isSelected
+          ? 'border-transparent text-white shadow-lg scale-105'
+          : 'bg-component-dark border-border-dark text-text-secondary hover:bg-border-dark hover:border-border-dark/50'
+      }`}>
+    {isSelected && (
+      <div className="absolute inset-0 bg-gradient-to-r from-primary-start to-primary-end -z-10"></div>
+    )}
+    <span className="text-sm font-semibold">{label}</span>
+  </button>
+);
+
 export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
   const [prompt, setPrompt] = useState('');
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>('1:1');
+  const [imageResolution, setImageResolution] =
+    useState<ImageResolution>('1K');
+  const [squareQuality, setSquareQuality] = useState<SquareQuality>('square_hd');
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string[] | null>(null);
@@ -102,26 +139,25 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
     setError(null);
     setGeneratedImage(null);
 
-    // Stop any previous polling
     if (pollingIntervalRef.current) {
       clearInterval(pollingIntervalRef.current);
     }
-    // Clean up previous blob URL if it exists
     if (generatedImageUrlRef.current) {
       URL.revokeObjectURL(generatedImageUrlRef.current);
       generatedImageUrlRef.current = null;
     }
 
-    const aspectRatioMap: Record<AspectRatio, string> = {
-      '1:1': 'square_hd',
-      '16:9': 'landscape_16_9',
-      '9:16': 'portrait_16_9',
-      '4:3': 'landscape_4_3',
-      '3:4': 'portrait_4_3',
-    };
+    const imageSize =
+      aspectRatio === '1:1'
+        ? squareQuality
+        : {
+            '16:9': 'landscape_16_9',
+            '9:16': 'portrait_16_9',
+            '4:3': 'landscape_4_3',
+            '3:4': 'portrait_4_3',
+          }[aspectRatio];
 
     try {
-      // Step 1: Create Task
       const createTaskResponse = await fetch(`${SORA_API_BASE_URL}/createTask`, {
         method: 'POST',
         headers: {
@@ -132,8 +168,8 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
           model: 'bytedance/seedream-v4-text-to-image',
           input: {
             prompt: prompt,
-            image_size: aspectRatioMap[aspectRatio],
-            image_resolution: '1K',
+            image_size: imageSize,
+            image_resolution: imageResolution,
             max_images: 1,
           },
         }),
@@ -153,7 +189,6 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
         throw new Error('API did not return a valid task ID.');
       }
 
-      // Step 2: Poll for result
       const pollStartTime = Date.now();
       const pollTimeout = 120000; // 2 minutes timeout
 
@@ -196,7 +231,6 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
               );
             }
 
-            // Fetch the image and create a blob URL to avoid CORS issues
             const imageResponse = await fetch(imageUrl);
             if (!imageResponse.ok) {
               throw new Error(
@@ -218,12 +252,10 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
             ]);
             setIsLoading(false);
           }
-          // If 'waiting', do nothing and let the interval run again
         } catch (pollError: any) {
           console.error('Error during polling:', pollError);
-          // Don't stop polling on a single failed network request to allow for recovery
         }
-      }, 3000); // Poll every 3 seconds
+      }, 3000);
     } catch (e: any) {
       console.error(e);
       setError([texts.error_failed, e.message]);
@@ -254,21 +286,59 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
             className="w-full bg-border-dark border-border-dark rounded-md p-3 text-text-dark h-28 focus:ring-primary/50 focus:border-primary focus:bg-component-dark transition-colors"
             placeholder={texts.placeholder}
           />
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-text-secondary mb-1">
-              {texts.aspect_ratio_label}
-            </label>
-            <select
-              value={aspectRatio}
-              onChange={(e) => setAspectRatio(e.target.value as AspectRatio)}
-              className="w-full bg-border-dark border-border-dark rounded-md py-2 px-3 text-text-dark focus:ring-primary/50 focus:border-primary focus:bg-component-dark transition-colors">
-              {(Object.keys(texts.aspect_ratios) as AspectRatio[]).map((ar) => (
-                <option key={ar} value={ar}>
-                  {texts.aspect_ratios[ar]}
-                </option>
-              ))}
-            </select>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-1">
+                {texts.aspect_ratio_label}
+              </label>
+              <select
+                value={aspectRatio}
+                onChange={(e) => setAspectRatio(e.target.value as AspectRatio)}
+                className="w-full bg-border-dark border-border-dark rounded-md py-2 px-3 text-text-dark focus:ring-primary/50 focus:border-primary focus:bg-component-dark transition-colors">
+                {(Object.keys(texts.aspect_ratios) as AspectRatio[]).map(
+                  (ar) => (
+                    <option key={ar} value={ar}>
+                      {texts.aspect_ratios[ar]}
+                    </option>
+                  ),
+                )}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-1">
+                {texts.image_resolution_label}
+              </label>
+              <select
+                value={imageResolution}
+                onChange={(e) =>
+                  setImageResolution(e.target.value as ImageResolution)
+                }
+                className="w-full bg-border-dark border-border-dark rounded-md py-2 px-3 text-text-dark focus:ring-primary/50 focus:border-primary focus:bg-component-dark transition-colors">
+                <option value="1K">1K</option>
+                <option value="2K">2K</option>
+                <option value="4K">4K</option>
+              </select>
+            </div>
           </div>
+          {aspectRatio === '1:1' && (
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-text-secondary mb-2">
+                {texts.square_quality_label}
+              </label>
+              <div className="flex gap-2">
+                <OptionButton
+                  label={texts.qualities.standard}
+                  isSelected={squareQuality === 'square'}
+                  onClick={() => setSquareQuality('square')}
+                />
+                <OptionButton
+                  label={texts.qualities.hd}
+                  isSelected={squareQuality === 'square_hd'}
+                  onClick={() => setSquareQuality('square_hd')}
+                />
+              </div>
+            </div>
+          )}
         </Card>
 
         <Card>

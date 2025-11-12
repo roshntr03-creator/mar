@@ -2,12 +2,12 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
 */
-import {GoogleGenAI} from '@google/genai';
-import React, {useState} from 'react';
+import React, {useRef, useEffect, useState} from 'react';
 import {ErrorModal} from './ErrorModal';
 import {ArrowDownTrayIcon, PhotoIcon} from './icons';
 
-const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
+const SORA_API_KEY = '8774ae5d8c69b9009c49a774e9b12555';
+const SORA_API_BASE_URL = 'https://api.kie.ai/api/v1/jobs';
 
 type AspectRatio = '1:1' | '16:9' | '9:16' | '4:3' | '3:4';
 type Language = 'english' | 'arabic';
@@ -78,6 +78,21 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
   const [error, setError] = useState<string[] | null>(null);
   const texts = TEXTS[language];
 
+  const pollingIntervalRef = useRef<number | null>(null);
+  const generatedImageUrlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    // Cleanup on unmount
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+      if (generatedImageUrlRef.current) {
+        URL.revokeObjectURL(generatedImageUrlRef.current);
+      }
+    };
+  }, []);
+
   const handleGenerate = async () => {
     if (!prompt) {
       setError([texts.error_title, texts.error_message]);
@@ -87,24 +102,131 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
     setError(null);
     setGeneratedImage(null);
 
+    // Stop any previous polling
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+    }
+    // Clean up previous blob URL if it exists
+    if (generatedImageUrlRef.current) {
+      URL.revokeObjectURL(generatedImageUrlRef.current);
+      generatedImageUrlRef.current = null;
+    }
+
+    const aspectRatioMap: Record<AspectRatio, string> = {
+      '1:1': 'square_hd',
+      '16:9': 'landscape_16_9',
+      '9:16': 'portrait_16_9',
+      '4:3': 'landscape_4_3',
+      '3:4': 'portrait_4_3',
+    };
+
     try {
-      const response = await ai.models.generateImages({
-        model: 'imagen-4.0-generate-001',
-        prompt: prompt,
-        config: {
-          numberOfImages: 1,
-          outputMimeType: 'image/jpeg',
-          aspectRatio: aspectRatio,
+      // Step 1: Create Task
+      const createTaskResponse = await fetch(`${SORA_API_BASE_URL}/createTask`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${SORA_API_KEY}`,
         },
+        body: JSON.stringify({
+          model: 'bytedance/seedream-v4-text-to-image',
+          input: {
+            prompt: prompt,
+            image_size: aspectRatioMap[aspectRatio],
+            image_resolution: '1K',
+            max_images: 1,
+          },
+        }),
       });
 
-      const base64ImageBytes = response.generatedImages[0].image.imageBytes;
-      const imageUrl = `data:image/jpeg;base64,${base64ImageBytes}`;
-      setGeneratedImage(imageUrl);
+      if (!createTaskResponse.ok) {
+        const errorData = await createTaskResponse.json();
+        throw new Error(
+          `API Error: ${errorData.msg || createTaskResponse.statusText}`,
+        );
+      }
+
+      const taskData = await createTaskResponse.json();
+      const taskId = taskData?.data?.taskId;
+
+      if (!taskId) {
+        throw new Error('API did not return a valid task ID.');
+      }
+
+      // Step 2: Poll for result
+      const pollStartTime = Date.now();
+      const pollTimeout = 120000; // 2 minutes timeout
+
+      pollingIntervalRef.current = window.setInterval(async () => {
+        if (Date.now() - pollStartTime > pollTimeout) {
+          clearInterval(pollingIntervalRef.current!);
+          pollingIntervalRef.current = null;
+          setError([texts.error_failed, 'Image generation timed out.']);
+          setIsLoading(false);
+          return;
+        }
+
+        try {
+          const pollResponse = await fetch(
+            `${SORA_API_BASE_URL}/recordInfo?taskId=${taskId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${SORA_API_KEY}`,
+              },
+            },
+          );
+
+          if (!pollResponse.ok) {
+            console.error(`Polling failed with status ${pollResponse.status}`);
+            return;
+          }
+
+          const pollData = await pollResponse.json();
+
+          if (pollData.data.state === 'success') {
+            clearInterval(pollingIntervalRef.current!);
+            pollingIntervalRef.current = null;
+
+            const resultJson = JSON.parse(pollData.data.resultJson);
+            const imageUrl = resultJson?.resultUrls?.[0];
+
+            if (!imageUrl) {
+              throw new Error(
+                'Generation succeeded but no image URL was found.',
+              );
+            }
+
+            // Fetch the image and create a blob URL to avoid CORS issues
+            const imageResponse = await fetch(imageUrl);
+            if (!imageResponse.ok) {
+              throw new Error(
+                `Failed to download the generated image from ${imageUrl}`,
+              );
+            }
+            const imageBlob = await imageResponse.blob();
+            const blobUrl = URL.createObjectURL(imageBlob);
+
+            generatedImageUrlRef.current = blobUrl;
+            setGeneratedImage(blobUrl);
+            setIsLoading(false);
+          } else if (pollData.data.state === 'fail') {
+            clearInterval(pollingIntervalRef.current!);
+            pollingIntervalRef.current = null;
+            setError([
+              texts.error_failed,
+              pollData.data.failMsg || 'Unknown error during generation.',
+            ]);
+            setIsLoading(false);
+          }
+          // If 'waiting', do nothing and let the interval run again
+        } catch (pollError: any) {
+          console.error('Error during polling:', pollError);
+          // Don't stop polling on a single failed network request to allow for recovery
+        }
+      }, 3000); // Poll every 3 seconds
     } catch (e: any) {
       console.error(e);
       setError([texts.error_failed, e.message]);
-    } finally {
       setIsLoading(false);
     }
   };

@@ -26,7 +26,6 @@ import {PricingPage} from './pages/PricingPage';
 import {AiMarketingCoach} from './components/AiMarketingCoach';
 import {BottomNavBar} from './components/BottomNavBar';
 import {CreateHub} from './components/CreateHub';
-import {AiCoachIcon} from './components/icons';
 import {Creations} from './components/Creations';
 import {
   CreationJob,
@@ -54,8 +53,8 @@ const BRAND_IDENTITY_KEY = 'aiMarketingSuite_brandIdentity';
 const WELCOME_SEEN_KEY = 'aiMarketingSuite_hasSeenWelcome';
 const PENDING_BRAND_INFO_KEY = 'aiMarketingSuite_pendingBrandInfo';
 
-const SORA_API_KEY = '8774ae5d8c69b9009c49a774e9b12555';
-const SORA_API_BASE_URL = 'https://api.kie.ai/api/v1/jobs';
+export const SORA_API_KEY = '8774ae5d8c69b9009c49a774e9b12555';
+export const SORA_API_BASE_URL = 'https://api.kie.ai/api/v1/jobs';
 const SORA_MODEL_NAME = 'sora-2-text-to-video';
 
 const TAB_COMPONENTS: Record<Tab, React.FC<PageProps>> = {
@@ -72,22 +71,6 @@ const TAB_COMPONENTS: Record<Tab, React.FC<PageProps>> = {
   image_generator: ImageGenerator,
   brand_identity: BrandIdentity,
   settings: Settings,
-};
-
-const TAB_TITLES: Record<Tab, {en: string; ar: string}> = {
-  dashboard: {en: 'Dashboard', ar: 'لوحة التحكم'},
-  creations: {en: 'My Creations', ar: 'إبداعاتي'},
-  ugc_video: {en: 'UGC Video Creator', ar: 'صانع فيديو UGC'},
-  campaigns: {en: 'Campaigns', ar: 'الحملات'},
-  post_assistant: {en: 'Post Assistant', ar: 'مساعد المنشورات'},
-  image_editor: {en: 'AI Image Editor', ar: 'محرر الصور بالذكاء الاصطناعي'},
-  content_generator: {en: 'Content Generation', ar: 'توليد المحتوى'},
-  promo_video: {en: 'Promo Video', ar: 'فيديو ترويجي'},
-  prompt_enhancer: {en: 'Prompt Enhancer', ar: 'محسن الأوامر'},
-  competitor_analysis: {en: 'Competitor Analysis', ar: 'تحليل المنافسين'},
-  image_generator: {en: 'Image Generation', ar: 'توليد الصور'},
-  brand_identity: {en: 'Brand Identity', ar: 'الهوية التجارية'},
-  settings: {en: 'More', ar: 'المزيد'},
 };
 
 async function processPendingJobs() {
@@ -153,7 +136,7 @@ async function processPendingJobs() {
         if (taskData?.data?.taskId) {
           taskIds.push(taskData.data.taskId);
         } else {
-          throw new Error('Sora API did not return a valid task ID.');
+          throw new Error(`Sora API did not return a valid task ID. Response: ${JSON.stringify(taskData)}`);
         }
       }
       updateCreationJob(job.id, {operations: taskIds});
@@ -420,9 +403,6 @@ export function App() {
   };
 
   const ActiveComponent = TAB_COMPONENTS[activeTab] || Dashboard;
-  const title =
-    TAB_TITLES[activeTab]?.[language === 'english' ? 'en' : 'ar'] ??
-    'Dashboard';
   const dir = language === 'arabic' ? 'rtl' : 'ltr';
 
   if (!hasSeenWelcome) {
@@ -467,22 +447,6 @@ export function App() {
     <div
       dir={dir}
       className="min-h-screen bg-background-dark text-text-dark font-display">
-      <header className="sticky top-0 z-30 grid grid-cols-3 items-center p-4 bg-background-dark/80 backdrop-blur-md border-b border-border-dark h-[73px]">
-        <div className="w-10 h-10" />
-        <h1 className="text-lg font-bold text-text-dark text-center truncate">{title}</h1>
-        <div className="flex justify-end">
-            <button
-              onClick={() => setShowAiCoach(true)}
-              className="w-10 h-10 p-2 rounded-full text-primary hover:bg-component-dark transition-all hover:scale-110"
-              aria-label={
-                language === 'english'
-                  ? 'Open AI Coach'
-                  : 'فتح مدرب الذكاء الاصطناعي'
-              }>
-              <AiCoachIcon />
-            </button>
-        </div>
-      </header>
 
       <main className="pb-20">
         <ActiveComponent

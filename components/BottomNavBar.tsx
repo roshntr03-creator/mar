@@ -5,11 +5,11 @@
 import React from 'react';
 import {Tab} from './navigationConfig';
 import {
-  Cog6ToothIcon,
   CreationsIcon,
   DashboardIcon,
   PlusIcon,
   ShieldCheckIcon,
+  SparklesIcon,
 } from './icons';
 
 interface BottomNavBarProps {
@@ -36,7 +36,7 @@ const TABS: {id: Tab; icon: React.FC<any>; label: {en: string; ar: string}}[] =
       icon: ShieldCheckIcon,
       label: {en: 'Brand', ar: 'الهوية'},
     },
-    {id: 'settings', icon: Cog6ToothIcon, label: {en: 'More', ar: 'المزيد'}},
+    {id: 'settings', icon: SparklesIcon, label: {en: 'More', ar: 'المزيد'}},
   ];
 
 const NavItem: React.FC<{
@@ -63,7 +63,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
 }) => {
   const lang = language === 'english' ? 'en' : 'ar';
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-20 bg-component-dark/80 backdrop-blur-lg border-t border-border-dark z-40">
+    <div className="fixed bottom-0 left-0 right-0 h-20 bg-black/80 backdrop-blur-lg z-40">
       <div className="grid grid-cols-5 items-center h-full max-w-2xl mx-auto">
         <NavItem
           icon={TABS[0].icon}

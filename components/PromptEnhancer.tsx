@@ -103,6 +103,12 @@ const Card: React.FC<{children: React.ReactNode; className?: string}> = ({
   </div>
 );
 
+// Define props interface for ChatMessage component in PromptEnhancer
+interface PromptEnhancerChatMessageProps {
+  author: 'user' | 'model';
+  text: string;
+}
+
 export const PromptEnhancer: React.FC<PromptEnhancerProps> = ({language}) => {
   // --- STATE ---
   const [initialIdea, setInitialIdea] = useState('');
@@ -184,7 +190,7 @@ export const PromptEnhancer: React.FC<PromptEnhancerProps> = ({language}) => {
 
 - في ردك الأول، قم بإنشاء أمر كامل ومفصل بناءً على فكرة المستخدم الأولية.
 - في الأدوار اللاحقة، قم بتعديل الأمر بناءً على ملاحظات المستخدم.
-- **هام جدًا: يجب أن يكون كل رد تقدمه كائن JSON صالحًا يطابق المخطط المقدم.** يجب أن يحتوي كائن JSON على التفاصيل الكاملة والمحدثة للأمر. كن مبدعًا وتوسع إلى ما هو أبعد من مدخلات المستخدم الأولية.`
+- **هام جدًا: يجب أن يكون كل رد تقدمه كائن JSON صالحًا يطابق المخطط المقدم. ** يجب أن يحتوي كائن JSON على التفاصيل الكاملة والمحدثة للأمر. كن مبدعًا وتوسع إلى ما هو أبعد من مدخلات المستخدم الأولية.`
       : `You are a conversational, world-class prompt engineering expert specializing in creating hyper-detailed, professional prompts for generative AI image models. Your task is to take a user's simple idea and collaboratively refine it.
 
 - In your first response, generate a complete, detailed prompt based on the user's initial idea.
@@ -302,12 +308,9 @@ export const PromptEnhancer: React.FC<PromptEnhancerProps> = ({language}) => {
     </div>
   );
 
-  const ChatMessage = ({
+  const ChatMessage: React.FC<PromptEnhancerChatMessageProps> = ({
     author,
     text,
-  }: {
-    author: 'user' | 'model';
-    text: string;
   }) => (
     <div
       className={`flex gap-3 ${

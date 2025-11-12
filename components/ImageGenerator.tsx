@@ -186,7 +186,7 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
       const taskId = taskData?.data?.taskId;
 
       if (!taskId) {
-        throw new Error('API did not return a valid task ID.');
+        throw new Error(`API did not return a valid task ID. Response: ${JSON.stringify(taskData)}`);
       }
 
       const pollStartTime = Date.now();

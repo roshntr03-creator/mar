@@ -34,7 +34,8 @@ export type CreationJobStatus =
 export type CreationJobType = 'ugc_video' | 'promo_video';
 
 export interface UgcVideoJobDetails {
-  productImageBase64: string;
+  productImageBase64?: string;
+  productImageKey?: string;
   productDescription: string;
   aspectRatio: '9:16' | '16:9';
   scripts: {script: string; part: number; total: number}[];
@@ -44,6 +45,7 @@ export interface UgcVideoJobDetails {
   vibe: string;
   setting: string;
   logoBase64?: string;
+  logoImageKey?: string;
   logoMimeType?: string;
   n_frames: number;
 }
@@ -51,9 +53,10 @@ export interface UgcVideoJobDetails {
 export interface PromoVideoJobDetails {
   prompts: {prompt: string; part: number; total: number}[];
   aspectRatio: '9:16' | '16:9';
-  videoStyle: string;
-  pacing: string;
+  videoStyle?: string;
+  pacing?: string;
   n_frames: number;
+  isImageToVideo?: boolean;
 }
 
 export interface CreationJob {
@@ -66,5 +69,6 @@ export interface CreationJob {
   operations?: string[];
   resultUrls?: (string | null)[];
   error?: string;
-  thumbnailUrl: string; // Base64 data URL for UGC, or a placeholder
+  thumbnailUrl?: string;
+  thumbnailKey?: string;
 }

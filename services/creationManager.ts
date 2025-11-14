@@ -3,15 +3,40 @@
  * SPDX-License-Identifier: Apache-2.0
 */
 import {openDB} from 'idb';
-import {CreationJob} from '../types';
+import {CreationJob, UgcVideoJobDetails} from '../types';
 
 const JOBS_KEY = 'aiMarketingSuite_creationJobs';
 const DB_NAME = 'AiMarketingSuiteDB';
-const STORE_NAME = 'videoStore';
+const VIDEO_STORE_NAME = 'videoStore';
+const ASSETS_STORE_NAME = 'jobAssets';
 
-// --- LocalStorage Job Metadata Management ---
+// --- DB Setup ---
+async function getDB() {
+  return openDB(DB_NAME, 2, {
+    upgrade(db, oldVersion) {
+      if (oldVersion < 1) {
+        db.createObjectStore(VIDEO_STORE_NAME);
+      }
+      if (oldVersion < 2) {
+        db.createObjectStore(ASSETS_STORE_NAME);
+      }
+    },
+  });
+}
 
-export function getCreationJobs(): CreationJob[] {
+// --- IndexedDB Asset Management ---
+async function saveAsset(key: string, data: string): Promise<void> {
+  const db = await getDB();
+  await db.put(ASSETS_STORE_NAME, data, key);
+}
+
+async function getAsset(key: string): Promise<string | undefined> {
+  const db = await getDB();
+  return db.get(ASSETS_STORE_NAME, key);
+}
+
+// --- LocalStorage Job Metadata Management (Internal) ---
+function getRawCreationJobs(): CreationJob[] {
   try {
     const storedJobs = localStorage.getItem(JOBS_KEY);
     return storedJobs ? JSON.parse(storedJobs) : [];
@@ -21,43 +46,99 @@ export function getCreationJobs(): CreationJob[] {
   }
 }
 
-function saveCreationJobs(jobs: CreationJob[]) {
+function saveRawCreationJobs(jobs: CreationJob[]) {
   try {
     localStorage.setItem(JOBS_KEY, JSON.stringify(jobs));
-    // Dispatch a storage event so other tabs/components can react
     window.dispatchEvent(new Event('storage'));
   } catch (e) {
     console.error('Failed to save creation jobs to localStorage', e);
   }
 }
 
-export function addCreationJob(newJob: CreationJob) {
-  const jobs = getCreationJobs();
-  // Add to the beginning of the list
-  saveCreationJobs([newJob, ...jobs]);
+// --- Public API for Job Management ---
+
+/**
+ * Retrieves all creation jobs, hydrating them with large assets from IndexedDB.
+ */
+export async function getCreationJobs(): Promise<CreationJob[]> {
+  const rawJobs = getRawCreationJobs();
+
+  const hydratedJobs = await Promise.all(
+    rawJobs.map(async (job) => {
+      const hydratedJob = {...job};
+
+      if (hydratedJob.thumbnailKey) {
+        hydratedJob.thumbnailUrl = await getAsset(hydratedJob.thumbnailKey);
+      }
+
+      if (hydratedJob.type === 'ugc_video') {
+        const details = hydratedJob.details as UgcVideoJobDetails;
+        if (details.productImageKey) {
+          details.productImageBase64 = await getAsset(details.productImageKey);
+        }
+        if (details.logoImageKey) {
+          details.logoBase64 = await getAsset(details.logoImageKey);
+        }
+      }
+      return hydratedJob;
+    }),
+  );
+
+  return hydratedJobs;
 }
 
+/**
+ * Adds a new creation job, storing large assets in IndexedDB and metadata in localStorage.
+ */
+export async function addCreationJob(newJob: CreationJob): Promise<void> {
+  const jobToStore = JSON.parse(JSON.stringify(newJob));
+  const jobId = jobToStore.id;
+
+  // Handle and strip thumbnail
+  if (jobToStore.thumbnailUrl) {
+    const key = `${jobId}_thumbnail`;
+    await saveAsset(key, jobToStore.thumbnailUrl);
+    jobToStore.thumbnailKey = key;
+    delete jobToStore.thumbnailUrl;
+  }
+
+  // Handle and strip UGC details
+  if (jobToStore.type === 'ugc_video') {
+    const details = jobToStore.details as UgcVideoJobDetails;
+    if (details.productImageBase64) {
+      const key = `${jobId}_productImage`;
+      await saveAsset(key, details.productImageBase64);
+      details.productImageKey = key;
+      delete details.productImageBase64;
+    }
+    if (details.logoBase64) {
+      const key = `${jobId}_logoImage`;
+      await saveAsset(key, details.logoBase64);
+      details.logoImageKey = key;
+      delete details.logoBase64;
+    }
+  }
+
+  const jobs = getRawCreationJobs();
+  saveRawCreationJobs([jobToStore, ...jobs]);
+}
+
+/**
+ * Updates a job's metadata in localStorage.
+ */
 export function updateCreationJob(
   jobId: string,
   updates: Partial<CreationJob>,
 ) {
-  const jobs = getCreationJobs();
+  const jobs = getRawCreationJobs();
   const jobIndex = jobs.findIndex((job) => job.id === jobId);
   if (jobIndex > -1) {
     jobs[jobIndex] = {...jobs[jobIndex], ...updates};
-    saveCreationJobs(jobs);
+    saveRawCreationJobs(jobs);
   }
 }
 
 // --- IndexedDB Video Blob Management ---
-
-async function getDB() {
-  return openDB(DB_NAME, 1, {
-    upgrade(db) {
-      db.createObjectStore(STORE_NAME);
-    },
-  });
-}
 
 /**
  * Saves a video blob to IndexedDB and returns the key used to store it.
@@ -69,8 +150,8 @@ export async function saveVideoResult(
 ): Promise<string> {
   const db = await getDB();
   const key = `${jobId}_${partIndex}`;
-  await db.put(STORE_NAME, videoBlob, key);
-  return key; // Return the key, not a temporary URL
+  await db.put(VIDEO_STORE_NAME, videoBlob, key);
+  return key;
 }
 
 /**
@@ -79,7 +160,7 @@ export async function saveVideoResult(
  */
 export async function getVideoUrlByKey(key: string): Promise<string> {
   const db = await getDB();
-  const blob = await db.get(STORE_NAME, key);
+  const blob = await db.get(VIDEO_STORE_NAME, key);
   if (blob instanceof Blob) {
     return URL.createObjectURL(blob);
   }

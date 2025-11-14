@@ -497,7 +497,7 @@ export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
         thumbnailUrl: productImageUrl!,
       };
 
-      addCreationJob(newJob);
+      await addCreationJob(newJob);
       setActiveTab('creations');
       handleReset();
     } catch (e: any) {

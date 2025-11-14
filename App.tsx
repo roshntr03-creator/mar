@@ -74,15 +74,63 @@ const TAB_COMPONENTS: Record<Tab, React.FC<PageProps>> = {
 };
 
 async function processPendingJobs() {
-  const jobs = getCreationJobs();
+  const jobs = await getCreationJobs();
   const pendingJobs = jobs.filter((job) => job.status === 'pending');
   if (pendingJobs.length === 0) return;
 
   for (const job of pendingJobs) {
     try {
       updateCreationJob(job.id, {status: 'generating'});
-      const taskIds: string[] = [];
 
+      // Special case for Image-to-Video Promo which has a different API structure and is always single-part.
+      if (
+        job.type === 'promo_video' &&
+        (job.details as PromoVideoJobDetails).isImageToVideo
+      ) {
+        const details = job.details as PromoVideoJobDetails;
+        const response = await fetch(`${SORA_API_BASE_URL}/createTask`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${SORA_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: 'sora-2-image-to-video',
+            input: {
+              prompt: details.prompts[0].prompt,
+              image_urls: [
+                'https://file.aiquickdraw.com/custom-page/akr/section-images/17594315607644506ltpf.jpg',
+              ],
+              aspect_ratio:
+                details.aspectRatio === '9:16' ? 'portrait' : 'landscape',
+              n_frames: details.n_frames.toString(),
+              remove_watermark: true,
+            },
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            `Sora API Error: ${errorData.msg || response.statusText}`,
+          );
+        }
+
+        const taskData = await response.json();
+        if (taskData?.data?.taskId) {
+          updateCreationJob(job.id, {operations: [taskData.data.taskId]});
+        } else {
+          throw new Error(
+            `Sora API did not return a valid task ID. Response: ${JSON.stringify(
+              taskData,
+            )}`,
+          );
+        }
+        continue; // Job handled, move to the next one
+      }
+
+      // Existing logic for UGC and Text-to-Video Promo jobs
+      const taskIds: string[] = [];
       const jobDetailsList: {prompt: string; aspect_ratio: string}[] = [];
 
       if (job.type === 'ugc_video') {
@@ -136,7 +184,11 @@ async function processPendingJobs() {
         if (taskData?.data?.taskId) {
           taskIds.push(taskData.data.taskId);
         } else {
-          throw new Error(`Sora API did not return a valid task ID. Response: ${JSON.stringify(taskData)}`);
+          throw new Error(
+            `Sora API did not return a valid task ID. Response: ${JSON.stringify(
+              taskData,
+            )}`,
+          );
         }
       }
       updateCreationJob(job.id, {operations: taskIds});
@@ -148,7 +200,7 @@ async function processPendingJobs() {
 }
 
 async function checkGeneratingJobs() {
-  const jobs = getCreationJobs();
+  const jobs = await getCreationJobs();
   const generatingJobs = jobs.filter((job) => job.status === 'generating');
   if (generatingJobs.length === 0) return;
 
@@ -181,8 +233,7 @@ async function checkGeneratingJobs() {
       );
 
       const allDone = results.every(
-        (res) =>
-          res.data.state === 'success' || res.data.state === 'fail',
+        (res) => res.data.state === 'success' || res.data.state === 'fail',
       );
 
       if (allDone) {
@@ -216,15 +267,20 @@ async function checkGeneratingJobs() {
               try {
                 const videoResponse = await fetch(uri);
                 if (!videoResponse.ok) {
-                  throw new Error(`Fetch failed with status ${videoResponse.status}`);
+                  throw new Error(
+                    `Fetch failed with status ${videoResponse.status}`,
+                  );
                 }
-                const contentLengthHeader = videoResponse.headers.get('content-length');
+                const contentLengthHeader =
+                  videoResponse.headers.get('content-length');
                 const videoArrayBuffer = await videoResponse.arrayBuffer();
 
                 if (contentLengthHeader) {
                   const expectedSize = parseInt(contentLengthHeader, 10);
                   if (videoArrayBuffer.byteLength < expectedSize) {
-                    throw new Error(`Incomplete download. Expected ${expectedSize} bytes, got ${videoArrayBuffer.byteLength}`);
+                    throw new Error(
+                      `Incomplete download. Expected ${expectedSize} bytes, got ${videoArrayBuffer.byteLength}`,
+                    );
                   }
                 }
 
@@ -232,20 +288,25 @@ async function checkGeneratingJobs() {
                   throw new Error('Downloaded file is empty.');
                 }
 
-                const contentType = videoResponse.headers.get('content-type') || 'video/mp4';
-                videoBlob = new Blob([videoArrayBuffer], { type: contentType });
+                const contentType =
+                  videoResponse.headers.get('content-type') || 'video/mp4';
+                videoBlob = new Blob([videoArrayBuffer], {type: contentType});
                 break; // Success
               } catch (e) {
-                console.error(`Attempt ${attempt} to download video from ${uri} failed:`, e);
+                console.error(
+                  `Attempt ${attempt} to download video from ${uri} failed:`,
+                  e,
+                );
                 if (attempt < maxRetries) {
-                  await new Promise(resolve => setTimeout(resolve, retryDelay));
+                  await new Promise((resolve) =>
+                    setTimeout(resolve, retryDelay),
+                  );
                 }
               }
             }
             return videoBlob;
           }),
         );
-
 
         const resultUrls = await Promise.all(
           videoBlobs.map((blob, index) =>
@@ -447,7 +508,6 @@ export function App() {
     <div
       dir={dir}
       className="min-h-screen bg-background-dark text-text-dark font-display">
-
       <main className="pb-20">
         <ActiveComponent
           language={language}

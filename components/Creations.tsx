@@ -204,12 +204,9 @@ export const Creations: React.FC<CreationsProps> = ({language, setActiveTab}) =>
   const texts = TEXTS[language];
 
   useEffect(() => {
-    const updateJobs = () => {
-      const newJobs = getCreationJobs();
+    const updateJobs = async () => {
+      const newJobs = await getCreationJobs();
       setJobs((prevJobs) => {
-        // Prevent re-renders if the underlying data hasn't changed.
-        // This is crucial to stop child components from revoking and
-        // re-creating video blob URLs, which was causing playback to fail.
         if (JSON.stringify(newJobs) === JSON.stringify(prevJobs)) {
           return prevJobs;
         }
@@ -219,9 +216,8 @@ export const Creations: React.FC<CreationsProps> = ({language, setActiveTab}) =>
 
     updateJobs();
 
-    // Listen for storage events to update in real-time
     window.addEventListener('storage', updateJobs);
-    const intervalId = setInterval(updateJobs, 2000); // Also poll just in case
+    const intervalId = setInterval(updateJobs, 2000);
 
     return () => {
       window.removeEventListener('storage', updateJobs);

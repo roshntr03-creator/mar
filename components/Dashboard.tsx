@@ -6,6 +6,7 @@ import {GoogleGenAI} from '@google/genai';
 import React, {useEffect, useState} from 'react';
 import {PageProps} from '../App';
 import {
+  AiCoachIcon,
   LightbulbIcon,
   MegaphoneIcon,
   PhotoIcon,
@@ -29,8 +30,11 @@ const TEXTS: Record<'english' | 'arabic', any> = {
     tipTitle: "Today's Marketing Tip",
     quickLinks: 'Jump Back In',
     recentActivity: 'Recent Activity',
-    errorFetchingTip: 'Could not load a tip right now. Please try again later.',
+    errorFetchingTip:
+      'Could not load a tip right now. Please try again later.',
     openAiCoach: 'Open AI Coach',
+    coachTitle: 'AI Marketing Coach',
+    coachDescription: 'Need advice? Chat with your AI coach.',
   },
   arabic: {
     welcome: 'مرحباً بعودتك!',
@@ -40,6 +44,9 @@ const TEXTS: Record<'english' | 'arabic', any> = {
     errorFetchingTip:
       'لا يمكن تحميل النصيحة الآن. يرجى المحاولة مرة أخرى لاحقًا.',
     openAiCoach: 'فتح مدرب الذكاء الاصطناعي',
+    coachTitle: 'مدرب التسويق بالذكاء الاصطناعي',
+    coachDescription:
+      'هل تحتاج إلى نصيحة؟ تحدث مع مدرب الذكاء الاصطناعي الخاص بك.',
   },
 };
 
@@ -162,7 +169,9 @@ export const Dashboard: React.FC<PageProps> = ({
   return (
     <div className="max-w-4xl mx-auto p-4 animate-fade-in pb-24 space-y-8">
       <div>
-        <h1 className="text-4xl sm:text-5xl font-bold text-gradient">{texts.welcome}</h1>
+        <h1 className="text-4xl sm:text-5xl font-bold text-gradient">
+          {texts.welcome}
+        </h1>
         {brandName && (
           <p className="text-lg text-text-secondary mt-1">
             {language === 'arabic'
@@ -188,6 +197,28 @@ export const Dashboard: React.FC<PageProps> = ({
           </p>
         </div>
       )}
+
+      {/* AI Coach CTA */}
+      <div className="bg-gradient-to-br from-primary-start/20 to-primary-end/20 p-6 rounded-xl border border-primary/30 shadow-glow flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary-start to-primary-end flex items-center justify-center text-white shadow-lg shadow-primary/30">
+            <AiCoachIcon className="w-8 h-8" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-text-dark">
+              {texts.coachTitle}
+            </h2>
+            <p className="text-text-secondary mt-1">
+              {texts.coachDescription}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={() => setShowAiCoach && setShowAiCoach(true)}
+          className="w-full sm:w-auto px-8 py-3 rounded-lg bg-component-dark text-text-dark font-semibold transition-all hover:bg-border-dark flex-shrink-0 border border-border-dark">
+          {texts.openAiCoach}
+        </button>
+      </div>
 
       {/* Quick Links */}
       <div>

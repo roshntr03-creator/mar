@@ -22,7 +22,7 @@ const TEXTS: Record<Language, any> = {
   english: {
     title: '1. Describe Your Image',
     placeholder:
-      'e.g., A cinematic, photorealistic image of an astronaut riding a horse on Mars.',
+      'e.g., A cinematic, photorealistic image of an astronaut riding a horse on Mars. You can generate up to 6 images.',
     aspect_ratio_label: 'Aspect Ratio',
     aspect_ratios: {
       '1:1': 'Square (1:1)',
@@ -32,6 +32,7 @@ const TEXTS: Record<Language, any> = {
       '3:4': 'Portrait (3:4)',
     },
     image_resolution_label: 'Image Resolution',
+    number_of_images_label: 'Number of Images',
     square_quality_label: 'Square Quality',
     qualities: {
       standard: 'Standard',
@@ -40,7 +41,7 @@ const TEXTS: Record<Language, any> = {
     generate_title: '2. Generate',
     generate_button: 'Generate Image',
     generating: 'Generating...',
-    result_title: 'Your Generated Image',
+    result_title: 'Your Generated Images',
     prompt_label: 'Prompt:',
     error_title: 'Missing Prompt',
     error_message: 'Please enter a prompt to generate an image.',
@@ -48,7 +49,8 @@ const TEXTS: Record<Language, any> = {
   },
   arabic: {
     title: '١. صف صورتك',
-    placeholder: 'مثال: صورة سينمائية واقعية لرائد فضاء يركب حصانًا على المريخ.',
+    placeholder:
+      'مثال: صورة سينمائية واقعية لرائد فضاء يركب حصانًا على المريخ. يمكنك إنشاء ما يصل إلى 6 صور.',
     aspect_ratio_label: 'نسبة العرض إلى الارتفاع',
     aspect_ratios: {
       '1:1': 'مربع (١:١)',
@@ -58,6 +60,7 @@ const TEXTS: Record<Language, any> = {
       '3:4': 'بورتريه (٣:٤)',
     },
     image_resolution_label: 'دقة الصورة',
+    number_of_images_label: 'عدد الصور',
     square_quality_label: 'جودة المربع',
     qualities: {
       standard: 'قياسي',
@@ -66,7 +69,7 @@ const TEXTS: Record<Language, any> = {
     generate_title: '٢. توليد',
     generate_button: 'توليد الصورة',
     generating: 'جاري التوليد...',
-    result_title: 'صورتك التي تم إنشاؤها',
+    result_title: 'صورك التي تم إنشاؤها',
     prompt_label: 'الأمر:',
     error_title: 'الأمر مفقود',
     error_message: 'يرجى إدخال أمر لتوليد صورة.',
@@ -110,13 +113,14 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
   const [imageResolution, setImageResolution] =
     useState<ImageResolution>('1K');
   const [squareQuality, setSquareQuality] = useState<SquareQuality>('square_hd');
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [numberOfImages, setNumberOfImages] = useState(1);
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string[] | null>(null);
   const texts = TEXTS[language];
 
   const pollingIntervalRef = useRef<number | null>(null);
-  const generatedImageUrlRef = useRef<string | null>(null);
+  const generatedImageUrlRef = useRef<string[]>([]);
 
   useEffect(() => {
     // Cleanup on unmount
@@ -124,8 +128,8 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
       }
-      if (generatedImageUrlRef.current) {
-        URL.revokeObjectURL(generatedImageUrlRef.current);
+      if (generatedImageUrlRef.current.length > 0) {
+        generatedImageUrlRef.current.forEach((url) => URL.revokeObjectURL(url));
       }
     };
   }, []);
@@ -137,14 +141,14 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
     }
     setIsLoading(true);
     setError(null);
-    setGeneratedImage(null);
+    setGeneratedImages([]);
 
     if (pollingIntervalRef.current) {
       clearInterval(pollingIntervalRef.current);
     }
-    if (generatedImageUrlRef.current) {
-      URL.revokeObjectURL(generatedImageUrlRef.current);
-      generatedImageUrlRef.current = null;
+    if (generatedImageUrlRef.current.length > 0) {
+      generatedImageUrlRef.current.forEach((url) => URL.revokeObjectURL(url));
+      generatedImageUrlRef.current = [];
     }
 
     const imageSize =
@@ -158,22 +162,25 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
           }[aspectRatio];
 
     try {
-      const createTaskResponse = await fetch(`${SORA_API_BASE_URL}/createTask`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${SORA_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'bytedance/seedream-v4-text-to-image',
-          input: {
-            prompt: prompt,
-            image_size: imageSize,
-            image_resolution: imageResolution,
-            max_images: 1,
+      const createTaskResponse = await fetch(
+        `${SORA_API_BASE_URL}/createTask`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${SORA_API_KEY}`,
           },
-        }),
-      });
+          body: JSON.stringify({
+            model: 'bytedance/seedream-v4-text-to-image',
+            input: {
+              prompt: prompt,
+              image_size: imageSize,
+              image_resolution: imageResolution,
+              max_images: numberOfImages,
+            },
+          }),
+        },
+      );
 
       if (!createTaskResponse.ok) {
         const errorData = await createTaskResponse.json();
@@ -186,7 +193,11 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
       const taskId = taskData?.data?.taskId;
 
       if (!taskId) {
-        throw new Error(`API did not return a valid task ID. Response: ${JSON.stringify(taskData)}`);
+        throw new Error(
+          `API did not return a valid task ID. Response: ${JSON.stringify(
+            taskData,
+          )}`,
+        );
       }
 
       const pollStartTime = Date.now();
@@ -223,25 +234,31 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
             pollingIntervalRef.current = null;
 
             const resultJson = JSON.parse(pollData.data.resultJson);
-            const imageUrl = resultJson?.resultUrls?.[0];
+            const imageUrls = resultJson?.resultUrls;
 
-            if (!imageUrl) {
+            if (!imageUrls || imageUrls.length === 0) {
               throw new Error(
                 'Generation succeeded but no image URL was found.',
               );
             }
 
-            const imageResponse = await fetch(imageUrl);
-            if (!imageResponse.ok) {
-              throw new Error(
-                `Failed to download the generated image from ${imageUrl}`,
-              );
-            }
-            const imageBlob = await imageResponse.blob();
-            const blobUrl = URL.createObjectURL(imageBlob);
+            const imageBlobs = await Promise.all(
+              imageUrls.map(async (url: string) => {
+                const imageResponse = await fetch(url);
+                if (!imageResponse.ok) {
+                  console.error(`Failed to download image from ${url}`);
+                  return null;
+                }
+                return imageResponse.blob();
+              }),
+            );
 
-            generatedImageUrlRef.current = blobUrl;
-            setGeneratedImage(blobUrl);
+            const blobUrls = imageBlobs
+              .filter((b): b is Blob => b !== null)
+              .map((blob) => URL.createObjectURL(blob));
+
+            generatedImageUrlRef.current = blobUrls;
+            setGeneratedImages(blobUrls);
             setIsLoading(false);
           } else if (pollData.data.state === 'fail') {
             clearInterval(pollingIntervalRef.current!);
@@ -320,6 +337,28 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
               </select>
             </div>
           </div>
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-text-secondary mb-2">
+              {texts.number_of_images_label}
+            </label>
+            <div className="flex items-center gap-4">
+              <input
+                type="range"
+                min="1"
+                max="6"
+                step="1"
+                value={numberOfImages}
+                onChange={(e) => setNumberOfImages(Number(e.target.value))}
+                className="w-full h-2 bg-border-dark rounded-lg appearance-none cursor-pointer"
+                style={{
+                  accentColor: '#C084FC',
+                }}
+              />
+              <span className="text-text-dark font-semibold w-4 text-center">
+                {numberOfImages}
+              </span>
+            </div>
+          </div>
           {aspectRatio === '1:1' && (
             <div className="mt-4">
               <label className="block text-sm font-medium text-text-secondary mb-2">
@@ -363,23 +402,27 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({language}) => {
           </button>
         </Card>
 
-        {generatedImage && (
+        {generatedImages.length > 0 && (
           <Card className="animate-fade-in">
             <h3 className="text-xl font-bold text-center text-text-dark mb-4">
               {texts.result_title}
             </h3>
-            <div className="relative">
-              <img
-                src={generatedImage}
-                alt="Generated"
-                className="w-full h-auto rounded-lg"
-              />
-              <a
-                href={generatedImage}
-                download="generated-image.jpg"
-                className="absolute top-2 right-2 p-2 bg-black/50 text-white rounded-full hover:bg-primary-start transition-colors">
-                <ArrowDownTrayIcon className="w-6 h-6" />
-              </a>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {generatedImages.map((imageUrl, index) => (
+                <div key={index} className="relative group">
+                  <img
+                    src={imageUrl}
+                    alt={`Generated image ${index + 1}`}
+                    className="w-full h-auto rounded-lg aspect-square object-cover"
+                  />
+                  <a
+                    href={imageUrl}
+                    download={`generated-image-${index + 1}.jpg`}
+                    className="absolute top-2 right-2 p-2 bg-black/50 text-white rounded-full hover:bg-primary-start transition-all opacity-0 group-hover:opacity-100">
+                    <ArrowDownTrayIcon className="w-5 h-5" />
+                  </a>
+                </div>
+              ))}
             </div>
             <div className="mt-4 p-3 bg-background-dark rounded-md">
               <p className="text-sm text-text-secondary">

@@ -43,6 +43,9 @@ const TEXTS: Record<'english' | 'arabic', any> = {
     customize_title: 'Customize Your Video',
     create_video_title: '3. Create Video',
     script_placeholder: 'Your generated script...',
+    video_prompt_title: 'Prompt the Video',
+    video_prompt_placeholder:
+      "e.g., A blonde woman in a modern kitchen, smiling as she uses the product...",
     gender_label: 'Influencer Gender',
     gender_female: 'Female',
     gender_male: 'Male',
@@ -101,6 +104,9 @@ const TEXTS: Record<'english' | 'arabic', any> = {
     customize_title: 'تخصيص الفيديو الخاص بك',
     create_video_title: '٣. إنشاء الفيديو',
     script_placeholder: 'السكربت الذي تم إنشاؤه...',
+    video_prompt_title: 'وصف الفيديو',
+    video_prompt_placeholder:
+      'مثال: امرأة شقراء في مطبخ حديث، تبتسم وهي تستخدم المنتج...',
     gender_label: 'جنس المؤثر',
     gender_female: 'أنثى',
     gender_male: 'ذكر',
@@ -337,6 +343,7 @@ export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
     null,
   );
   const [script, setScript] = useState('');
+  const [videoPrompt, setVideoPrompt] = useState('');
   const [interactionOptions, setInteractionOptions] = useState<string[]>([]);
   const [selectedInteraction, setSelectedInteraction] = useState('');
 
@@ -372,6 +379,7 @@ export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
     setProductImageUrl(null);
     setProductImageBase64(null);
     setScript('');
+    setVideoPrompt('');
     setInteractionOptions([]);
     setLogoUrl(null);
     setLogoBase64(null);
@@ -482,6 +490,7 @@ export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
         personaDescription: getPersonaDescription(language, gender),
         vibe,
         setting,
+        videoPrompt: videoPrompt || undefined,
         logoBase64: logoBase64 ?? undefined,
         logoMimeType: logoMimeType ?? undefined,
         n_frames,
@@ -510,6 +519,7 @@ export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
     productImageBase64,
     productImageUrl,
     script,
+    videoPrompt,
     logoBase64,
     logoMimeType,
     language,
@@ -570,9 +580,20 @@ export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
       <textarea
         value={script}
         onChange={(e) => setScript(e.target.value)}
-        className="w-full bg-background-dark border-border-dark rounded-md p-3 text-text-dark mb-6 h-28 focus:ring-primary focus:border-primary"
+        className="w-full bg-background-dark border-border-dark rounded-md p-3 text-text-dark mb-4 h-28 focus:ring-primary focus:border-primary"
         placeholder={texts.script_placeholder}
       />
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-text-secondary mb-2">
+          {texts.video_prompt_title}
+        </label>
+        <textarea
+          value={videoPrompt}
+          onChange={(e) => setVideoPrompt(e.target.value)}
+          className="w-full bg-background-dark border-border-dark rounded-md p-3 text-text-dark h-24 focus:ring-primary focus:border-primary"
+          placeholder={texts.video_prompt_placeholder}
+        />
+      </div>
       <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-2">

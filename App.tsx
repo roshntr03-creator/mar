@@ -136,8 +136,12 @@ async function processPendingJobs() {
       if (job.type === 'ugc_video') {
         const details = job.details as UgcVideoJobDetails;
         for (const scriptInfo of details.scripts) {
+          let fullPrompt = `Product: ${details.productDescription}. Persona: ${details.personaDescription}. Action: ${details.interaction}. Dialogue: "${scriptInfo.script}". Vibe: ${details.vibe}. Setting: ${details.setting}.`;
+          if (details.videoPrompt && details.videoPrompt.trim() !== '') {
+            fullPrompt += ` Instructions: ${details.videoPrompt}.`;
+          }
           jobDetailsList.push({
-            prompt: `Product: ${details.productDescription}. Persona: ${details.personaDescription}. Action: ${details.interaction}. Dialogue: "${scriptInfo.script}". Vibe: ${details.vibe}. Setting: ${details.setting}.`,
+            prompt: fullPrompt,
             aspect_ratio:
               details.aspectRatio === '9:16' ? 'portrait' : 'landscape',
           });

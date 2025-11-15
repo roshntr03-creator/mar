@@ -48,6 +48,7 @@ export interface UgcVideoJobDetails {
   logoImageKey?: string;
   logoMimeType?: string;
   n_frames: number;
+  videoPrompt?: string;
 }
 
 export interface PromoVideoJobDetails {

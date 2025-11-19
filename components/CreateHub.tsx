@@ -14,11 +14,11 @@ interface CreateHubProps {
 
 const TEXTS: Record<'english' | 'arabic', any> = {
   english: {
-    title: 'What will you create?',
+    title: 'Create New',
     close: 'Close',
   },
   arabic: {
-    title: 'ماذا ستنشئ؟',
+    title: 'إنشاء جديد',
     close: 'إغلاق',
   },
 };
@@ -34,36 +34,45 @@ export const CreateHub: React.FC<CreateHubProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end justify-center animate-fade-in"
-      onClick={onClose}
-      aria-modal="true"
-      role="dialog">
+      className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-end justify-center animate-fade-in"
+      onClick={onClose}>
       <div
         dir={dir}
-        className="bg-component-dark w-full max-w-2xl rounded-t-xl shadow-2xl p-4 border-t border-border-dark animate-slide-in-up"
+        className="w-full max-w-2xl glass-card rounded-t-[3rem] p-8 pb-16 animate-slide-up shadow-2xl border-t border-white/20 bg-[#0a0a0f]/90"
         onClick={(e) => e.stopPropagation()}>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-text-dark">{texts.title}</h2>
+        
+        <div className="w-16 h-1.5 bg-white/10 rounded-full mx-auto mb-8"></div>
+        
+        <div className="flex justify-between items-center mb-10 px-2">
+          <h2 className="text-3xl font-bold text-white">{texts.title}</h2>
           <button
             onClick={onClose}
-            className="p-2 text-text-secondary hover:text-text-dark"
-            aria-label={texts.close}>
+            className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/70 hover:bg-white/20 hover:text-white transition-colors border border-white/10">
             <XMarkIcon className="w-6 h-6" />
           </button>
         </div>
+
         <div className="grid grid-cols-2 gap-4">
-          {createTabs.map((tab) => {
+          {createTabs.map((tab, index) => {
             const Icon = tab.icon;
             const label = language === 'english' ? tab.label.en : tab.label.ar;
+            const colors = [
+                'text-violet-200 bg-violet-500/20 border-violet-500/30 shadow-[0_0_15px_rgba(139,92,246,0.2)]',
+                'text-pink-200 bg-pink-500/20 border-pink-500/30 shadow-[0_0_15px_rgba(236,72,153,0.2)]',
+                'text-blue-200 bg-blue-500/20 border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.2)]',
+                'text-emerald-200 bg-emerald-500/20 border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.2)]'
+            ];
+            const styleClass = colors[index % colors.length];
+
             return (
               <button
                 key={tab.id}
                 onClick={() => onSelect(tab.id)}
-                className="bg-background-dark p-4 rounded-lg text-center hover:bg-border-dark transition-colors group">
-                <div className="flex items-center justify-center w-12 h-12 bg-border-dark rounded-full mx-auto mb-3 group-hover:bg-primary/20 transition-colors">
-                  <Icon className="w-7 h-7 text-text-secondary group-hover:text-primary transition-colors" />
+                className={`p-6 rounded-[2.5rem] border flex flex-col items-center justify-center gap-5 h-48 transition-all active:scale-95 ${styleClass} hover:brightness-110 hover:scale-[1.02]`}>
+                <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center shadow-inner backdrop-blur-sm">
+                   <Icon className="w-8 h-8" />
                 </div>
-                <p className="font-semibold text-text-dark text-sm">{label}</p>
+                <span className="font-bold text-base text-white tracking-wide text-center">{label}</span>
               </button>
             );
           })}

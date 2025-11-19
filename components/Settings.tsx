@@ -6,6 +6,12 @@ import React, {useState} from 'react';
 import {PageProps} from '../App';
 import {useAuth} from '../contexts/AuthContext';
 import {GROUP_LABELS, TABS_CONFIG, Group} from './navigationConfig';
+import {
+  UserIcon,
+  CheckCircleIcon,
+  BoltIcon,
+  XMarkIcon
+} from './icons';
 
 type Language = 'english' | 'arabic';
 
@@ -15,22 +21,22 @@ const TEXTS: Record<Language, any> = {
     settingsTitle: 'Settings',
     sections: {
       tools: 'All Tools',
-      account: 'Account Management',
-      app: 'App Preferences',
-      support: 'Support & About',
+      account: 'Account',
+      app: 'Preferences',
+      support: 'Support',
     },
     rows: {
-      editProfile: 'Edit Profile',
-      changePassword: 'Change Password',
-      manageSubscription: 'Manage Subscription',
+      editProfile: 'Profile',
+      changePassword: 'Password',
+      manageSubscription: 'Subscription',
       logOut: 'Log Out',
       language: 'Language',
       notifications: 'Notifications',
       theme: 'Theme',
-      help: 'Help & Support',
-      about: 'About Us',
-      privacy: 'Privacy Policy',
-      terms: 'Terms of Service',
+      help: 'Help Center',
+      about: 'About',
+      privacy: 'Privacy',
+      terms: 'Terms',
     },
     values: {
       english: 'English',
@@ -44,22 +50,22 @@ const TEXTS: Record<Language, any> = {
     settingsTitle: 'الإعدادات',
     sections: {
       tools: 'كل الأدوات',
-      account: 'إدارة الحساب',
-      app: 'تفضيلات التطبيق',
-      support: 'الدعم وحول التطبيق',
+      account: 'الحساب',
+      app: 'التفضيلات',
+      support: 'الدعم',
     },
     rows: {
-      editProfile: 'تعديل الملف الشخصي',
-      changePassword: 'تغيير كلمة المرور',
-      manageSubscription: 'إدارة الاشتراك',
+      editProfile: 'الملف الشخصي',
+      changePassword: 'كلمة المرور',
+      manageSubscription: 'الاشتراك',
       logOut: 'تسجيل الخروج',
       language: 'اللغة',
       notifications: 'الإشعارات',
       theme: 'المظهر',
-      help: 'المساعدة والدعم',
+      help: 'مركز المساعدة',
       about: 'عنا',
-      privacy: 'سياسة الخصوصية',
-      terms: 'شروط الخدمة',
+      privacy: 'الخصوصية',
+      terms: 'الشروط',
     },
     values: {
       english: 'English',
@@ -74,16 +80,16 @@ const SettingsSection: React.FC<{title: string; children: React.ReactNode}> = ({
   title,
   children,
 }) => (
-  <div>
-    <h2 className="text-sm font-bold uppercase text-text-secondary px-4 pb-2 pt-2">
+  <div className="mb-8">
+    <h2 className="text-xs font-bold uppercase text-white/40 px-6 mb-3 tracking-widest">
       {title}
     </h2>
-    <div className="bg-component-dark rounded-xl border border-border-dark overflow-hidden">
+    <div className="glass-card rounded-[2rem] overflow-hidden border border-white/10 bg-white/[0.02]">
       {React.Children.map(children, (child, index) => (
         <>
           {child}
           {index < React.Children.count(children) - 1 && (
-            <hr className="border-border-dark ml-16" />
+            <div className="h-[1px] bg-white/5 mx-6" />
           )}
         </>
       ))}
@@ -104,37 +110,29 @@ const SettingsRow: React.FC<{
   isDestructive = false,
   rightContent,
 }) => (
-  <div
+  <button
     onClick={onClick}
-    className={`flex items-center gap-4 px-4 min-h-[56px] justify-between transition-colors duration-200 ${
-      onClick
-        ? isDestructive
-          ? 'cursor-pointer hover:bg-destructive/10'
-          : 'cursor-pointer hover:bg-white/5'
-        : ''
-    }`}>
-    <div className="flex items-center gap-4">
+    className={`w-full flex items-center gap-5 px-6 h-[4.5rem] justify-between transition-colors active:bg-white/5 text-left group`}>
+    <div className="flex items-center gap-5">
       <div
-        className={`flex items-center justify-center shrink-0 size-8 rounded-md ${
-          isDestructive ? 'bg-destructive/20 text-destructive' : 'bg-primary/20 text-primary'
+        className={`flex items-center justify-center shrink-0 size-10 rounded-2xl ${
+          isDestructive ? 'bg-red-500/10 text-red-400' : 'bg-white/5 text-white/70 group-hover:text-white transition-colors border border-white/5'
         }`}>
         {typeof icon === 'string' ? (
-          <span className="material-symbols-outlined text-xl">{icon}</span>
+          <span className="material-symbols-rounded text-xl">{icon}</span>
         ) : (
           icon
         )}
       </div>
       <p
-        className={`text-base flex-1 truncate ${
-          isDestructive
-            ? 'text-destructive font-semibold'
-            : 'text-text-dark font-normal'
+        className={`text-base font-semibold ${
+          isDestructive ? 'text-red-400' : 'text-white'
         }`}>
         {label}
       </p>
     </div>
     <div className="shrink-0">{rightContent}</div>
-  </div>
+  </button>
 );
 
 export const Settings: React.FC<PageProps> = ({
@@ -169,7 +167,8 @@ export const Settings: React.FC<PageProps> = ({
   const groupOrder: Group[] = ['Create', 'Refine', 'Strategy', 'General'];
 
   const renderMainView = () => (
-    <div className="flex flex-col gap-8 p-4 pb-24">
+    <div className="flex flex-col p-4 animate-slide-up pb-24 pt-8">
+       <h1 className="text-3xl font-bold text-white mb-8 px-2">{texts.title}</h1>
       {groupOrder.map(
         (group) =>
           groupedTabs[group] &&
@@ -193,9 +192,11 @@ export const Settings: React.FC<PageProps> = ({
                       }
                     }}
                     rightContent={
-                      <span className="material-symbols-outlined text-text-secondary">
-                        chevron_right
-                      </span>
+                      <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+                         <span className="material-symbols-rounded text-white/40 text-sm">
+                          arrow_forward
+                        </span>
+                      </div>
                     }
                   />
                 );
@@ -207,175 +208,76 @@ export const Settings: React.FC<PageProps> = ({
   );
 
   const renderSettingsView = () => (
-    <div className="animate-fade-in">
-      {/* Sub-header for Settings */}
-      <div className="flex items-center p-2 border-b border-border-dark sticky top-[73px] bg-background-dark/80 backdrop-blur-md z-10 h-[56px]">
+    <div className="animate-slide-up pb-24">
+      <div className="flex items-center p-4 sticky top-0 z-10 bg-[#030014]/80 backdrop-blur-xl border-b border-white/5">
         <button
           onClick={() => setView('main')}
-          className="p-2 text-text-secondary hover:text-text-dark rounded-full transition-colors"
+          className="w-10 h-10 glass-card rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-colors border border-white/10"
           aria-label={texts.values.back}>
-          <span className="material-symbols-outlined">
+          <span className="material-symbols-rounded">
             {dir === 'rtl' ? 'arrow_forward' : 'arrow_back'}
           </span>
         </button>
-        <h2 className="text-lg font-bold text-text-dark absolute left-1/2 -translate-x-1/2">
+        <h2 className="text-lg font-bold text-white flex-1 text-center pr-10">
           {texts.settingsTitle}
         </h2>
       </div>
 
-      {/* Settings content */}
-      <div className="flex flex-col gap-8 p-4 pb-24">
+      <div className="p-4 space-y-6">
         <SettingsSection title={texts.sections.account}>
           <SettingsRow
-            icon="person"
+            icon={<UserIcon className="w-5 h-5" />}
             label={texts.rows.editProfile}
             onClick={() => {}}
-            rightContent={
-              <span className="material-symbols-outlined text-text-secondary">
-                chevron_right
-              </span>
-            }
+            rightContent={<span className="material-symbols-rounded text-white/30 text-sm">arrow_forward_ios</span>}
           />
           <SettingsRow
-            icon="lock"
-            label={texts.rows.changePassword}
-            onClick={() => {}}
-            rightContent={
-              <span className="material-symbols-outlined text-text-secondary">
-                chevron_right
-              </span>
-            }
-          />
-          <SettingsRow
-            icon="credit_card"
+            icon={<BoltIcon className="w-5 h-5" />}
             label={texts.rows.manageSubscription}
             onClick={() => setShowPricing && setShowPricing(true)}
-            rightContent={
-              <span className="material-symbols-outlined text-text-secondary">
-                chevron_right
-              </span>
-            }
-          />
-          <SettingsRow
-            icon="logout"
-            label={texts.rows.logOut}
-            isDestructive
-            onClick={logout}
+            rightContent={<span className="material-symbols-rounded text-white/30 text-sm">arrow_forward_ios</span>}
           />
         </SettingsSection>
 
         <SettingsSection title={texts.sections.app}>
           <SettingsRow
-            icon="language"
+            icon={<span className="material-symbols-rounded">language</span>}
             label={texts.rows.language}
             onClick={handleLanguageClick}
             rightContent={
-              <div className="shrink-0 flex items-center gap-2">
-                <p className="text-text-secondary text-sm">
-                  {language === 'english'
-                    ? texts.values.english
-                    : texts.values.arabic}
-                </p>
-                <div className="text-text-secondary flex size-7 items-center justify-center">
-                  <span className="material-symbols-outlined">
-                    chevron_right
-                  </span>
-                </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-white/60 font-medium">
+                  {language === 'english' ? texts.values.english : texts.values.arabic}
+                </span>
+                <span className="material-symbols-rounded text-white/30 text-sm">arrow_forward_ios</span>
               </div>
             }
           />
           <SettingsRow
-            icon="notifications"
+            icon={<span className="material-symbols-rounded">notifications</span>}
             label={texts.rows.notifications}
             rightContent={
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={notificationsEnabled}
-                  onChange={() => setNotificationsEnabled((prev) => !prev)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-border-dark rounded-full peer peer-focus:ring-2 peer-focus:ring-primary/50 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r from-primary-start to-primary-end"></div>
-              </label>
-            }
-          />
-          <SettingsRow
-            icon="dark_mode"
-            label={texts.rows.theme}
-            onClick={() => {}}
-            rightContent={
-              <div className="shrink-0 flex items-center gap-2">
-                <p className="text-text-secondary text-sm">
-                  {texts.values.dark}
-                </p>
-                <div className="text-text-secondary flex size-7 items-center justify-center">
-                  <span className="material-symbols-outlined">
-                    chevron_right
-                  </span>
-                </div>
-              </div>
+              <button
+                  onClick={() => setNotificationsEnabled(!notificationsEnabled)}
+                  className={`w-14 h-8 rounded-full p-1 transition-colors duration-300 flex items-center ${notificationsEnabled ? 'bg-primary' : 'bg-white/10 border border-white/10'}`}
+              >
+                  <div className={`w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300 ${notificationsEnabled ? 'translate-x-6' : 'translate-x-0'}`}></div>
+              </button>
             }
           />
         </SettingsSection>
 
-        <SettingsSection title={texts.sections.support}>
-          <SettingsRow
-            icon="help"
-            label={texts.rows.help}
-            onClick={() => {}}
-            rightContent={
-              <div className="text-text-secondary flex size-7 items-center justify-center">
-                <span className="material-symbols-outlined">
-                  chevron_right
-                </span>
-              </div>
-            }
-          />
-          <SettingsRow
-            icon="info"
-            label={texts.rows.about}
-            onClick={() => {}}
-            rightContent={
-              <div className="text-text-secondary flex size-7 items-center justify-center">
-                <span className="material-symbols-outlined">
-                  chevron_right
-                </span>
-              </div>
-            }
-          />
-          <SettingsRow
-            icon="shield"
-            label={texts.rows.privacy}
-            onClick={() => {}}
-            rightContent={
-              <div className="text-text-secondary flex size-7 items-center justify-center">
-                <span className="material-symbols-outlined">
-                  chevron_right
-                </span>
-              </div>
-            }
-          />
-          <SettingsRow
-            icon="description"
-            label={texts.rows.terms}
-            onClick={() => {}}
-            rightContent={
-              <div className="text-text-secondary flex size-7 items-center justify-center">
-                <span className="material-symbols-outlined">
-                  chevron_right
-                </span>
-              </div>
-            }
-          />
-        </SettingsSection>
+        <div className="px-4">
+           <button onClick={logout} className="w-full h-16 rounded-[2rem] bg-red-500/10 text-red-400 font-bold border border-red-500/20 hover:bg-red-500/20 transition-colors text-lg">
+              {texts.rows.logOut}
+           </button>
+        </div>
       </div>
     </div>
   );
 
   return (
-    <div
-      className="relative h-auto min-h-screen w-full bg-background-dark text-text-dark"
-      dir={dir}>
+    <div dir={dir}>
       {view === 'main' ? renderMainView() : renderSettingsView()}
     </div>
   );

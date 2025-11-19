@@ -4,271 +4,133 @@
 */
 import React from 'react';
 
-// Common props for all icons, allowing className and other SVG attributes.
+// Common props for all icons
 type IconProps = React.SVGProps<SVGSVGElement>;
 
-// --- NEW GRADIENT LINE ICON SYSTEM ---
-// A complete rewrite based on user feedback for a modern, clear, and unique aesthetic.
-// Feature icons use a subtle gradient stroke, integrating them with the app's branding.
-// Utility icons are clean, single-color line art for maximum clarity and function.
+// --- NEW PREMIUM ICON SET ---
+// Consistent stroke width, rounded caps, modern aesthetic.
 
-// --- GRADIENT FEATURE ICONS ---
-
-export const AiCoachIcon: React.FC<IconProps> = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <defs>
-      <linearGradient id="grad-aicoach" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#A855F7" />
-        <stop offset="100%" stopColor="#EC4899" />
-      </linearGradient>
-    </defs>
-    <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="url(#grad-aicoach)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M12 8v4" stroke="url(#grad-aicoach)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M12 16h.01" stroke="url(#grad-aicoach)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+const BaseIcon: React.FC<IconProps & { path: React.ReactNode }> = ({ path, ...props }) => (
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" strokeWidth={1.5} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    {path}
   </svg>
 );
 
 export const DashboardIcon: React.FC<IconProps> = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <defs>
-      <linearGradient id="grad-dashboard" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#A855F7" />
-        <stop offset="100%" stopColor="#EC4899" />
-      </linearGradient>
-    </defs>
-    <rect x="4" y="4" width="6" height="6" rx="1" stroke="url(#grad-dashboard)" strokeWidth="1.5"/>
-    <rect x="4" y="14" width="6" height="6" rx="1" stroke="url(#grad-dashboard)" strokeWidth="1.5"/>
-    <rect x="14" y="4" width="6" height="6" rx="1" stroke="url(#grad-dashboard)" strokeWidth="1.5"/>
-    <rect x="14" y="14" width="6" height="6" rx="1" stroke="url(#grad-dashboard)" strokeWidth="1.5"/>
-  </svg>
+  <BaseIcon {...props} path={<><rect x="3" y="3" width="7" height="7" rx="2" /><rect x="14" y="3" width="7" height="7" rx="2" /><rect x="14" y="14" width="7" height="7" rx="2" /><rect x="3" y="14" width="7" height="7" rx="2" /></>} />
 );
 
 export const UgcVideoIcon: React.FC<IconProps> = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <defs>
-      <linearGradient id="grad-ugc" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#A855F7" />
-        <stop offset="100%" stopColor="#EC4899" />
-      </linearGradient>
-    </defs>
-    <rect x="7" y="2" width="10" height="20" rx="2" stroke="url(#grad-ugc)" strokeWidth="1.5"/>
-    <path d="m10.5 11 3 2-3 2v-4Z" stroke="url(#grad-ugc)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+  <BaseIcon {...props} path={<><rect x="4" y="2" width="16" height="20" rx="3" /><path d="M10 10l5 2.5-5 2.5V10z" /><path d="M8 18h8" /></>} />
 );
 
 export const ClapperboardIcon: React.FC<IconProps> = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <defs>
-      <linearGradient id="grad-clapperboard" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#A855F7" />
-        <stop offset="100%" stopColor="#EC4899" />
-      </linearGradient>
-    </defs>
-    <path d="M4 8h16M4 12h16M4 16h16M16 4 8 8" stroke="url(#grad-clapperboard)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M4 4h16v16H4V4Z" stroke="url(#grad-clapperboard)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+  <BaseIcon {...props} path={<><path d="M4 11v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /><path d="M4 11l2-6h14l-2 6" /><path d="M8 5l-2 6" /><path d="M16 5l-2 6" /></>} />
 );
 
 export const PhotoIcon: React.FC<IconProps> = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <defs>
-      <linearGradient id="grad-photo" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#A855F7" />
-        <stop offset="100%" stopColor="#EC4899" />
-      </linearGradient>
-    </defs>
-    <rect x="3" y="3" width="18" height="18" rx="2" stroke="url(#grad-photo)" strokeWidth="1.5"/>
-    <circle cx="8.5" cy="8.5" r="1.5" stroke="url(#grad-photo)" strokeWidth="1.5"/>
-    <path d="m21 15-5-5-11 11" stroke="url(#grad-photo)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+  <BaseIcon {...props} path={<><rect x="3" y="3" width="18" height="18" rx="4" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" /></>} />
 );
 
 export const DocumentTextIcon: React.FC<IconProps> = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <defs>
-      <linearGradient id="grad-doc" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#A855F7" />
-        <stop offset="100%" stopColor="#EC4899" />
-      </linearGradient>
-    </defs>
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z" stroke="url(#grad-doc)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="url(#grad-doc)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+  <BaseIcon {...props} path={<><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><line x1="10" y1="9" x2="8" y2="9" /></>} />
 );
 
 export const WandIcon: React.FC<IconProps> = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <defs>
-      <linearGradient id="grad-wand" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#A855F7" />
-        <stop offset="100%" stopColor="#EC4899" />
-      </linearGradient>
-    </defs>
-    <path d="m3 21 6-6m4-4 6-6-4-4-6 6-4 4Zm0 0-3 3" stroke="url(#grad-wand)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+  <BaseIcon {...props} path={<><path d="M15 4l2 2-9.5 9.5a2.8 2.8 0 0 0 0 4 2.8 2.8 0 0 0 4 0L21 10l2 2" /><path d="M3 21l6-6" /></>} />
 );
 
 export const SparklesIcon: React.FC<IconProps> = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <defs>
-      <linearGradient id="grad-sparkles" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#A855F7" />
-        <stop offset="100%" stopColor="#EC4899" />
-      </linearGradient>
-    </defs>
-    <path d="M12 3v3m0 15v-3m9-9h-3M6 12H3m16.5-7.5-2.12 2.12M8.62 15.38 6.5 17.5M17.5 6.5 15.38 8.62M8.62 8.62 6.5 6.5" stroke="url(#grad-sparkles)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+  <BaseIcon {...props} path={<><path d="M12 3l1.9 4.4L18 9l-4.1 1.6L12 15l-1.9-4.4L6 9l4.1-1.6L12 3z" /><path d="M5 17l1 2.5L8.5 20.5 6 22l-1 2.5L4 22l-2.5-1.5L4 19.5 5 17z" /><path d="M19 14l.7 1.8L21.5 16.5 19.7 18 19 19.8 18.3 18 16.5 16.5 18.3 15.7 19 14z" /></>} />
 );
 
 export const CreationsIcon: React.FC<IconProps> = (props) => (
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-        <defs>
-          <linearGradient id="grad-creations" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#A855F7" />
-            <stop offset="100%" stopColor="#EC4899" />
-          </linearGradient>
-        </defs>
-        <path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5L12 2Z" stroke="url(#grad-creations)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
+    <BaseIcon {...props} path={<><path d="M2 12h20" /><path d="M12 2v20" /><circle cx="12" cy="12" r="4" /></>} />
 );
 
 export const LightbulbIcon: React.FC<IconProps> = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <defs>
-      <linearGradient id="grad-lightbulb" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#A855F7" />
-        <stop offset="100%" stopColor="#EC4899" />
-      </linearGradient>
-    </defs>
-    <path d="M9 18h6v2a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-2Z" stroke="url(#grad-lightbulb)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M9 18h6M12 2a6 6 0 0 1 6 6c0 2-1 4-3 5H9c-2-1-3-3-3-5a6 6 0 0 1 6-6Z" stroke="url(#grad-lightbulb)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+  <BaseIcon {...props} path={<><path d="M9 18h6" /><path d="M10 22h4" /><path d="M12 2a7 7 0 0 0-7 7c0 2 2 3 2 6h10c0-3 2-4 2-6a7 7 0 0 0-7-7z" /></>} />
 );
 
 export const ShieldCheckIcon: React.FC<IconProps> = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <defs>
-      <linearGradient id="grad-shield" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#A855F7" />
-        <stop offset="100%" stopColor="#EC4899" />
-      </linearGradient>
-    </defs>
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" stroke="url(#grad-shield)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="m9 12 2 2 4-4" stroke="url(#grad-shield)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+  <BaseIcon {...props} path={<><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="M9 12l2 2 4-4" /></>} />
 );
 
 export const MegaphoneIcon: React.FC<IconProps> = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <defs>
-      <linearGradient id="grad-megaphone" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#A855F7" />
-        <stop offset="100%" stopColor="#EC4899" />
-      </linearGradient>
-    </defs>
-    <path d="M10 10H4c-1.1 0-2 .9-2 2v0a2 2 0 0 0 2 2h6m0-4 8-4v12l-8-4m0-4v4" stroke="url(#grad-megaphone)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M6 10v4" stroke="url(#grad-megaphone)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+  <BaseIcon {...props} path={<><path d="M22 8c0-2.2-2-4-4.5-4h-8c-1.8 0-3.3 1-4 2.5L2 9v6l3.5 2.5c.7 1.5 2.2 2.5 4 2.5h8c2.5 0 4.5-1.8 4.5-4" /><path d="M18 4v16" /><line x1="2" y1="9" x2="2" y2="15" /></>} />
 );
 
 export const AnalysisIcon: React.FC<IconProps> = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <defs>
-      <linearGradient id="grad-analysis" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#A855F7" />
-        <stop offset="100%" stopColor="#EC4899" />
-      </linearGradient>
-    </defs>
-    <path d="M8 12v5m4-7v7m4-9v9" stroke="url(#grad-analysis)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <circle cx="11" cy="8" r="5" stroke="url(#grad-analysis)" strokeWidth="1.5"/>
-    <path d="m14.5 11.5 3 3" stroke="url(#grad-analysis)" strokeWidth="1.5" strokeLinecap="round"/>
-  </svg>
+  <BaseIcon {...props} path={<><path d="M3 3v18h18" /><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3" /></>} />
 );
 
 export const Cog6ToothIcon: React.FC<IconProps> = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <defs>
-      <linearGradient id="grad-cog" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#A855F7" />
-        <stop offset="100%" stopColor="#EC4899" />
-      </linearGradient>
-    </defs>
-    <circle cx="12" cy="12" r="3" stroke="url(#grad-cog)" strokeWidth="1.5"/>
-    <path d="M12 2v2m0 16v2M22 12h-2m-16 0H2m17.5-7.5-1.414 1.414M4.929 19.071 3.515 20.485m14.142 0-1.414-1.414M4.929 4.929 3.515 3.515" stroke="url(#grad-cog)" strokeWidth="1.5" strokeLinecap="round"/>
-  </svg>
+  <BaseIcon {...props} path={<><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" /></>} />
 );
 
-
-// --- UTILITY & ACTION ICONS ---
-// Simple, single-color line art for clarity and flexibility.
+export const AiCoachIcon: React.FC<IconProps> = (props) => (
+    <BaseIcon {...props} path={<><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z" /><path d="M12 16v-4" /><path d="M12 8h.01" /></>} />
+);
 
 export const XMarkIcon: React.FC<IconProps> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-  </svg>
-);
-
-export const Bars3Icon: React.FC<IconProps> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-  </svg>
+  <BaseIcon {...props} path={<><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>} />
 );
 
 export const PlusIcon: React.FC<IconProps> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-  </svg>
+  <BaseIcon {...props} path={<><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></>} />
 );
 
 export const CheckCircleIcon: React.FC<IconProps> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-  </svg>
+  <BaseIcon {...props} path={<><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></>} />
 );
 
 export const EnvelopeIcon: React.FC<IconProps> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-  </svg>
+  <BaseIcon {...props} path={<><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></>} />
 );
 
 export const LockClosedIcon: React.FC<IconProps> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 00-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-  </svg>
+  <BaseIcon {...props} path={<><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>} />
 );
 
 export const UserIcon: React.FC<IconProps> = (props) => (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-    </svg>
+    <BaseIcon {...props} path={<><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>} />
 );
 
 export const UploadIcon: React.FC<IconProps> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-  </svg>
+  <BaseIcon {...props} path={<><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></>} />
 );
 
 export const ArrowDownTrayIcon: React.FC<IconProps> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-  </svg>
+  <BaseIcon {...props} path={<><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></>} />
 );
 
 export const ClipboardIcon: React.FC<IconProps> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a2.25 2.25 0 01-2.25 2.25h-1.5a2.25 2.25 0 01-2.25-2.25v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
-  </svg>
+  <BaseIcon {...props} path={<><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></>} />
 );
 
 export const MicrophoneIcon: React.FC<IconProps> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m12 0v-1.5a6 6 0 00-12 0v1.5m6 7.5v4.5m-3.75-10.5a7.5 7.5 0 0115 0v1.5a7.5 7.5 0 01-15 0v-1.5z" />
-  </svg>
+  <BaseIcon {...props} path={<><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></>} />
 );
 
-// --- BRAND ICONS (UNCHANGED) ---
+export const BoltIcon: React.FC<IconProps> = (props) => (
+  <BaseIcon {...props} path={<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />} />
+);
+
+export const BuildingOfficeIcon: React.FC<IconProps> = (props) => (
+  <BaseIcon {...props} path={<><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></>} />
+);
+
+export const FaceSmileIcon: React.FC<IconProps> = (props) => (
+  <BaseIcon {...props} path={<><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></>} />
+);
+
+export const HomeIcon: React.FC<IconProps> = (props) => (
+  <BaseIcon {...props} path={<><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>} />
+);
+
+export const SunIcon: React.FC<IconProps> = (props) => (
+  <BaseIcon {...props} path={<><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></>} />
+);
 
 export const GoogleIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" {...props}>
@@ -276,42 +138,5 @@ export const GoogleIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z" />
     <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.223 0-9.641-3.657-11.303-8.653l-6.571 4.819C9.656 39.663 16.318 44 24 44z" />
     <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C43.021 36.697 44 34 44 31c0-5.202-2.699-9.713-6.852-12.22z" />
-  </svg>
-);
-
-// --- DEPRECATED ICONS (Filled Style) - Kept for reference, not used in main UI ---
-
-export const BoltIcon: React.FC<IconProps> = (props) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <path d="m13.06 3.1-.38 2.26c.72.21 1.4.55 2 .98l2.2-1a.75.75 0 0 1 .94.3l.03.05.8 1.39-12.78 7.37.28 1.54 5.3-3.06-2.58 4.47h6.6L13.06 3.1Z" fillOpacity=".4"/>
-    <path d="M8.25 2.5a.5.5 0 0 0-.87.5l4 8a.5.5 0 0 0 .87-.5l-4-8ZM10.5 13H7.8l6.3-10.9A1.5 1.5 0 0 1 15.45 3l.05.02L12 11h3.33a.5.5 0 0 1 .43.75l-5 9a.5.5 0 0 1-.9-.32l1.64-9.18Z"/>
-  </svg>
-);
-
-export const BuildingOfficeIcon: React.FC<IconProps> = (props) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <path d="M3.5 21.5h17v-13a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v13Z" fillOpacity=".4"/>
-    <path d="M8.5 2.5h-4a1 1 0 0 0-1 1v17h6v-18Zm-4 2h3v2h-3v-2Zm0 4h3v2h-3v-2Zm0 4h3v2h-3v-2Zm11 6h2v-2h-2v2Zm0-4h2v-2h-2v2Zm0-4h2v-2h-2v2Zm-4 8h2v-2h-2v2Zm0-4h2v-2h-2v2Zm0-4h2v-2h-2v2Z"/>
-  </svg>
-);
-
-export const FaceSmileIcon: React.FC<IconProps> = (props) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <path d="M12 21.5a9.5 9.5 0 1 1 0-19 9.5 9.5 0 0 1 0 19Z" fillOpacity=".4"/>
-    <path d="M12 2.5a9.5 9.5 0 1 0 0 19 9.5 9.5 0 0 0 0-19ZM2 12a10 10 0 1 1 20 0 10 10 0 0 1-20 0Zm7-2a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm6 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm-1.5 3.5a3.5 3.5 0 0 1-5 0 .5.5 0 0 1 .4-.8h4.2a.5.5 0 0 1 .4.8Z"/>
-  </svg>
-);
-
-export const HomeIcon: React.FC<IconProps> = (props) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <path d="M4.5 10.5v10h15v-10l-7.5-6-7.5 6Z" fillOpacity=".4"/>
-    <path d="M9.5 20.5v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5h4v-9l-7-5.25-7 5.25v9h4Z"/>
-  </svg>
-);
-
-export const SunIcon: React.FC<IconProps> = (props) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <path d="M12 17.5a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11Z" fillOpacity=".4"/>
-    <path d="M12 5.5a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2a.5.5 0 0 1 .5-.5ZM12 18.5a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 1 1 0v2a.5.5 0 0 1-.5.5ZM17.2 7.87a.5.5 0 0 1 0-.7l1.42-1.42a.5.5 0 1 1 .7.7l-1.41 1.42a.5.5 0 0 1-.71 0ZM6.8 18.27a.5.5 0 0 1 0-.7l1.41-1.42a.5.5 0 0 1 .71.71l-1.42 1.41a.5.5 0 0 1-.7 0ZM18.5 12.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 0 1ZM8.5 12.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 0 1ZM17.2 17.27a.5.5 0 0 1-.7 0l-1.42-1.41a.5.5 0 0 1 .7-.71l1.42 1.42a.5.5 0 0 1 0 .7ZM6.8 7.87a.5.5 0 0 1-.7 0L4.68 6.46a.5.5 0 1 1 .7-.7l1.42 1.4a.5.5 0 0 1 0 .71Z"/>
   </svg>
 );

@@ -4,8 +4,8 @@
 */
 import React, {useState} from 'react';
 import {
-  EnvelopeIcon,
   GoogleIcon,
+  EnvelopeIcon,
   LockClosedIcon,
   UserIcon,
 } from '../components/icons';
@@ -23,109 +23,64 @@ interface AuthPageProps {
 
 const TEXTS: Record<Language, any> = {
   english: {
-    // General
-    email: 'Email Address',
+    email: 'Email',
     password: 'Password',
     or: 'OR',
-    continueWithGoogle: 'Continue with Google',
-    subscriptions: 'Subscriptions',
-    // Sign In
-    signInTitle: 'Welcome Back!',
-    signInSubtitle: 'Sign in to access your marketing suite.',
+    continueWithGoogle: 'Google',
+    signInTitle: 'Welcome Back',
+    signInSubtitle: 'Enter your details below',
     signIn: 'Sign In',
-    forgotPassword: 'Forgot Password?',
-    // Sign Up
-    signUpTitle: 'Create Your Account',
-    signUpSubtitle: 'Start your journey with AI-powered marketing.',
-    signUp: 'Create Account',
+    signUpSubtitle: 'Start your AI journey',
+    signUp: 'Sign Up',
     firstName: 'First Name',
     lastName: 'Last Name',
     confirmPassword: 'Confirm Password',
-    // Errors
-    signInError: 'Login failed. Please check your credentials.',
-    signUpError: 'Signup failed. Please try again.',
+    signInError: 'Invalid credentials.',
+    signUpError: 'Signup failed.',
     passwordMismatch: 'Passwords do not match.',
+    slogan: 'Unlock the power of AI Marketing',
   },
   arabic: {
-    // General
     email: 'البريد الإلكتروني',
     password: 'كلمة المرور',
     or: 'أو',
-    continueWithGoogle: 'متابعة باستخدام جوجل',
-    subscriptions: 'الاشتراكات',
-    // Sign In
-    signInTitle: 'مرحباً بعودتك!',
-    signInSubtitle: 'سجل الدخول للوصول إلى مجموعة التسويق الخاصة بك.',
-    signIn: 'تسجيل الدخول',
-    forgotPassword: 'هل نسيت كلمة المرور؟',
-    // Sign Up
-    signUpTitle: 'أنشئ حسابك',
-    signUpSubtitle: 'ابدأ رحلتك مع التسويق المدعوم بالذكاء الاصطناعي.',
-    signUp: 'إنشاء حساب',
+    continueWithGoogle: 'جوجل',
+    signInTitle: 'مرحباً بعودتك',
+    signInSubtitle: 'أدخل بياناتك أدناه',
+    signIn: 'دخول',
+    signUpSubtitle: 'ابدأ رحلتك',
+    signUp: 'تسجيل',
     firstName: 'الاسم الأول',
     lastName: 'اسم العائلة',
     confirmPassword: 'تأكيد كلمة المرور',
-    // Errors
-    signInError: 'فشل تسجيل الدخول. يرجى التحقق من بياناتك.',
-    signUpError: 'فشل إنشاء الحساب. يرجى المحاولة مرة أخرى.',
+    signInError: 'بيانات غير صحيحة.',
+    signUpError: 'فشل التسجيل.',
     passwordMismatch: 'كلمتا المرور غير متطابقتين.',
+    slogan: 'أطلق العنان لقوة التسويق بالذكاء الاصطناعي',
   },
 };
 
-const LanguageSwitcher: React.FC<{
-  language: Language;
-  setLanguage: (lang: Language) => void;
-}> = ({language, setLanguage}) => (
-  <div className="flex w-fit items-center gap-1 rounded-full bg-component-dark p-1 border border-border-dark">
-    <button
-      onClick={() => setLanguage('english')}
-      className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors ${
-        language === 'english'
-          ? 'bg-gradient-to-r from-primary-start to-primary-end text-white'
-          : 'text-text-secondary hover:bg-border-dark'
-      }`}>
-      EN
-    </button>
-    <button
-      onClick={() => setLanguage('arabic')}
-      className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors ${
-        language === 'arabic'
-          ? 'bg-gradient-to-r from-primary-start to-primary-end text-white'
-          : 'text-text-secondary hover:bg-border-dark'
-      }`}>
-      AR
-    </button>
-  </div>
-);
-
-const InputField: React.FC<{
+const GlassInput: React.FC<{
   id: string;
   type: string;
-  label: string;
+  placeholder: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   icon: React.ReactNode;
-  required?: boolean;
-}> = ({id, type, label, value, onChange, icon, required = true}) => (
-  <div>
-    <label
-      className="block text-sm font-medium text-text-secondary mb-1"
-      htmlFor={id}>
-      {label}
-    </label>
-    <div className="relative">
-      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-text-secondary">
-        {icon}
-      </div>
-      <input
-        id={id}
-        type={type}
-        value={value}
-        onChange={onChange}
-        className="w-full bg-border-dark border-border-dark rounded-md p-3 pl-10 text-text-dark focus:ring-primary/50 focus:border-primary focus:bg-component-dark transition-colors"
-        required={required}
-      />
+}> = ({id, type, placeholder, value, onChange, icon}) => (
+  <div className="relative group mb-3">
+    <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none z-10">
+      <span className="text-white/40 group-focus-within:text-primary transition-colors duration-300">{icon}</span>
     </div>
+    <input
+      id={id}
+      type={type}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      className="w-full h-14 glass-input rounded-2xl pl-12 pr-4 text-white placeholder:text-white/30 transition-all duration-300 text-base font-medium"
+      required
+    />
   </div>
 );
 
@@ -133,33 +88,19 @@ export const AuthPage: React.FC<AuthPageProps> = ({
   onSignupSuccess,
   language,
   setLanguage,
-  setShowPricing,
 }) => {
   const [activeTab, setActiveTab] = useState<AuthTab>('signin');
-  // Form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  // Control state
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const {login, signup} = useAuth();
   const texts = TEXTS[language];
   const dir = language === 'arabic' ? 'rtl' : 'ltr';
-
-  const handleTabChange = (tab: AuthTab) => {
-    setActiveTab(tab);
-    setError(null);
-    // Clear form fields
-    setEmail('');
-    setPassword('');
-    setFirstName('');
-    setLastName('');
-    setConfirmPassword('');
-  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -192,190 +133,93 @@ export const AuthPage: React.FC<AuthPageProps> = ({
     }
   };
 
-  const title =
-    activeTab === 'signin' ? texts.signInTitle : texts.signUpTitle;
-  const subtitle =
-    activeTab === 'signin' ? texts.signInSubtitle : texts.signUpSubtitle;
-
   return (
-    <div
-      dir={dir}
-      className="min-h-screen bg-background-dark text-text-dark flex flex-col items-center justify-center p-4 font-display">
-      <div className="absolute top-4 left-4 right-4 flex justify-between items-center">
-        <button
-          onClick={() => setShowPricing(true)}
-          className="px-4 py-2 rounded-lg bg-component-dark border border-border-dark text-text-secondary font-semibold hover:bg-border-dark hover:text-text-dark transition-colors text-sm">
-          {texts.subscriptions}
-        </button>
-        <LanguageSwitcher language={language} setLanguage={setLanguage} />
-      </div>
+    <div dir={dir} className="min-h-screen flex flex-col items-center justify-center p-4 safe-area-bottom relative overflow-hidden">
+       {/* Language Toggle */}
+       <div className="absolute top-6 right-6 z-30 flex gap-2">
+          <button onClick={() => setLanguage('english')} className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${language === 'english' ? 'bg-white text-black' : 'text-white/60 glass-card hover:bg-white/10'}`}>EN</button>
+          <button onClick={() => setLanguage('arabic')} className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${language === 'arabic' ? 'bg-white text-black' : 'text-white/60 glass-card hover:bg-white/10'}`}>AR</button>
+       </div>
 
-      <div className="w-full max-w-md">
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-text-dark">{title}</h1>
-          <p className="text-text-secondary mt-2">{subtitle}</p>
-        </div>
-
-        <div className="bg-component-dark rounded-xl shadow-2xl border border-border-dark overflow-hidden">
-          <div className="flex">
-            <button
-              onClick={() => handleTabChange('signin')}
-              className={`w-1/2 py-3 font-semibold transition-colors ${
-                activeTab === 'signin'
-                  ? 'bg-gradient-to-r from-primary-start to-primary-end text-white'
-                  : 'bg-transparent text-text-secondary hover:bg-border-dark'
-              }`}>
-              {texts.signIn}
-            </button>
-            <button
-              onClick={() => handleTabChange('signup')}
-              className={`w-1/2 py-3 font-semibold transition-colors ${
-                activeTab === 'signup'
-                  ? 'bg-gradient-to-r from-primary-start to-primary-end text-white'
-                  : 'bg-transparent text-text-secondary hover:bg-border-dark'
-              }`}>
-              {texts.signUp}
-            </button>
+       <div className="w-full max-w-md z-10 flex flex-col items-center animate-slide-up">
+          
+          {/* Header Text */}
+          <div className="text-center mb-8 space-y-2">
+             <h1 className="text-white/50 text-lg font-medium tracking-wide">
+                {activeTab === 'signin' ? texts.signInSubtitle : texts.signUpSubtitle}
+             </h1>
           </div>
 
-          <div className="p-8">
-            {/* Sign In Form */}
-            {activeTab === 'signin' && (
-              <div className="animate-fade-in">
-                <form onSubmit={handleSignIn} className="space-y-6">
-                  <InputField
-                    id="email"
-                    type="email"
-                    label={texts.email}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    icon={<EnvelopeIcon className="w-5 h-5" />}
-                  />
-                  <InputField
-                    id="password"
-                    type="password"
-                    label={texts.password}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    icon={<LockClosedIcon className="w-5 h-5" />}
-                  />
-                  <div className="flex items-center justify-end">
-                    <a
-                      href="#"
-                      className="text-sm font-medium text-primary/80 hover:text-primary">
-                      {texts.forgotPassword}
-                    </a>
-                  </div>
+          {/* Main Glass Card */}
+          <div className="w-full relative">
+            {/* Glow Effect */}
+            <div className="absolute -inset-1 bg-gradient-to-b from-primary/20 to-transparent rounded-[2.5rem] blur-xl opacity-50 pointer-events-none"></div>
+            
+            <div className="glass-card p-1 rounded-[2.5rem] border border-white/10 bg-black/40 shadow-2xl backdrop-blur-3xl relative overflow-hidden">
+               {/* Inner Card Padding */}
+               <div className="p-6 sm:p-8">
 
-                  {error && (
-                    <p className="text-destructive text-sm text-center">
-                      {error}
-                    </p>
-                  )}
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full h-12 flex items-center justify-center rounded-lg bg-gradient-to-r from-primary-start to-primary-end text-white font-semibold transition-all hover:opacity-90 hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed">
-                    {isLoading ? (
-                      <div className="w-6 h-6 border-2 border-dashed rounded-full animate-spin border-white"></div>
-                    ) : (
-                      texts.signIn
-                    )}
-                  </button>
-                </form>
+                   {/* Toggle Switch */}
+                   <div className="bg-black/40 rounded-2xl p-1 mb-8 flex relative h-14 border border-white/5">
+                      <div className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-b from-[#2a2a30] to-[#1a1a20] rounded-xl transition-all duration-500 shadow-lg border border-white/10 ${activeTab === 'signin' ? (dir === 'rtl' ? 'right-1' : 'left-1') : (dir === 'rtl' ? 'right-[calc(50%+2px)]' : 'left-[calc(50%+2px)]')}`}></div>
+                      <button onClick={() => setActiveTab('signin')} className={`flex-1 z-10 text-sm font-bold transition-colors duration-300 ${activeTab === 'signin' ? 'text-white' : 'text-white/40 hover:text-white/60'}`}>{texts.signIn}</button>
+                      <button onClick={() => setActiveTab('signup')} className={`flex-1 z-10 text-sm font-bold transition-colors duration-300 ${activeTab === 'signup' ? 'text-white' : 'text-white/40 hover:text-white/60'}`}>{texts.signUp}</button>
+                   </div>
 
-                <div className="relative my-6">
-                  <div
-                    className="absolute inset-0 flex items-center"
-                    aria-hidden="true">
-                    <div className="w-full border-t border-border-dark" />
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="bg-component-dark px-2 text-text-secondary">
-                      {texts.or}
-                    </span>
-                  </div>
-                </div>
-
-                <button
-                  disabled={isLoading}
-                  className="w-full h-12 flex items-center justify-center gap-3 rounded-lg bg-border-dark hover:bg-border-dark/70 text-text-dark font-semibold transition-colors disabled:opacity-50">
-                  <GoogleIcon className="w-5 h-5" />
-                  <span>{texts.continueWithGoogle}</span>
-                </button>
-              </div>
-            )}
-
-            {/* Sign Up Form */}
-            {activeTab === 'signup' && (
-              <div className="animate-fade-in">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <InputField
-                      id="firstName"
-                      type="text"
-                      label={texts.firstName}
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      icon={<UserIcon className="w-5 h-5" />}
-                    />
-                    <InputField
-                      id="lastName"
-                      type="text"
-                      label={texts.lastName}
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      icon={<UserIcon className="w-5 h-5" />}
-                    />
-                  </div>
-                  <InputField
-                    id="signup-email"
-                    type="email"
-                    label={texts.email}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    icon={<EnvelopeIcon className="w-5 h-5" />}
-                  />
-                  <InputField
-                    id="signup-password"
-                    type="password"
-                    label={texts.password}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    icon={<LockClosedIcon className="w-5 h-5" />}
-                  />
-                  <InputField
-                    id="confirmPassword"
-                    type="password"
-                    label={texts.confirmPassword}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    icon={<LockClosedIcon className="w-5 h-5" />}
-                  />
-
-                  {error && (
-                    <p className="text-destructive text-sm text-center pt-2">
-                      {error}
-                    </p>
-                  )}
-                  <div className="pt-2">
-                    <button
-                      type="submit"
-                      disabled={isLoading}
-                      className="w-full h-12 flex items-center justify-center rounded-lg bg-gradient-to-r from-primary-start to-primary-end text-white font-semibold transition-all hover:opacity-90 hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed">
-                      {isLoading ? (
-                        <div className="w-6 h-6 border-2 border-dashed rounded-full animate-spin border-white"></div>
-                      ) : (
-                        texts.signUp
+                   <form onSubmit={activeTab === 'signin' ? handleSignIn : handleSignUp} className="space-y-2 animate-fade-in">
+                      {activeTab === 'signup' && (
+                         <div className="flex gap-3">
+                            <div className="flex-1">
+                              <GlassInput id="first" type="text" placeholder={texts.firstName} value={firstName} onChange={(e) => setFirstName(e.target.value)} icon={<UserIcon className="w-5 h-5"/>} />
+                            </div>
+                            <div className="flex-1">
+                              <GlassInput id="last" type="text" placeholder={texts.lastName} value={lastName} onChange={(e) => setLastName(e.target.value)} icon={<UserIcon className="w-5 h-5"/>} />
+                            </div>
+                         </div>
                       )}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
+                      
+                      <GlassInput id="email" type="email" placeholder={texts.email} value={email} onChange={(e) => setEmail(e.target.value)} icon={<EnvelopeIcon className="w-5 h-5"/>} />
+                      <GlassInput id="pass" type="password" placeholder={texts.password} value={password} onChange={(e) => setPassword(e.target.value)} icon={<LockClosedIcon className="w-5 h-5"/>} />
+                      
+                      {activeTab === 'signup' && (
+                         <GlassInput id="confirm" type="password" placeholder={texts.confirmPassword} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} icon={<LockClosedIcon className="w-5 h-5"/>} />
+                      )}
+
+                      {error && <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-3 mb-4"><p className="text-destructive text-xs text-center font-bold">{error}</p></div>}
+
+                      <div className="pt-4">
+                        <button
+                          type="submit"
+                          disabled={isLoading}
+                          className="w-full h-14 rounded-2xl bg-gradient-to-r from-[#4c1d95] to-[#6d28d9] text-white font-bold text-lg shadow-[0_0_25px_rgba(109,40,217,0.5)] hover:shadow-[0_0_40px_rgba(109,40,217,0.7)] active:scale-[0.98] transition-all duration-300 flex items-center justify-center border-t border-white/20 relative overflow-hidden group">
+                          <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 rounded-2xl"></div>
+                          <span className="relative z-10 flex items-center gap-2">
+                             {isLoading ? <span className="material-symbols-rounded animate-spin">progress_activity</span> : (activeTab === 'signin' ? texts.signIn : texts.signUp)}
+                          </span>
+                        </button>
+                      </div>
+                   </form>
+
+                   {activeTab === 'signin' && (
+                      <div className="mt-8 space-y-6">
+                         <div className="relative flex items-center justify-center">
+                            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10"></div></div>
+                            <span className="relative bg-[#050505] px-4 text-[10px] text-white/30 font-bold rounded-full uppercase tracking-widest">{texts.or}</span>
+                         </div>
+                         <button className="w-full h-14 rounded-2xl bg-white/5 hover:bg-white/10 transition-all duration-300 font-semibold border border-white/10 flex items-center justify-center gap-3 group active:scale-[0.98]">
+                            <GoogleIcon className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" /> 
+                            <span className="text-white/80 group-hover:text-white">{texts.continueWithGoogle}</span>
+                         </button>
+                      </div>
+                   )}
+               </div>
+            </div>
           </div>
-        </div>
-      </div>
+          
+          <p className="mt-8 text-white/20 text-xs text-center max-w-xs leading-relaxed">
+             {texts.slogan}
+          </p>
+       </div>
     </div>
   );
 };

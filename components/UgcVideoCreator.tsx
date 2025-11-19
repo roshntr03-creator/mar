@@ -1,3 +1,4 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -35,17 +36,18 @@ const TEXTS: Record<'english' | 'arabic', any> = {
     create_new: 'Create a New Version',
     start_over: 'Start Over',
     upload_title: '1. Upload Product Image',
-    upload_cta: 'Click to upload an image',
+    upload_cta: 'Upload Image',
     upload_formats: 'PNG, JPG, WEBP',
     script_title: '2. Generate Script',
     generate_script: 'Generate Script',
     generating: 'Generating...',
     customize_title: 'Customize Your Video',
-    create_video_title: '3. Create Video',
+    create_video_title: '3. Final Touches',
+    script_label: 'Script (Spoken)',
     script_placeholder: 'Your generated script...',
-    video_prompt_title: 'Prompt the Video',
+    video_prompt_label: 'Scene Description (Visuals)',
     video_prompt_placeholder:
-      "e.g., A blonde woman in a modern kitchen, smiling as she uses the product...",
+      "Describe the scene action (e.g. 'A woman holding the bottle up to the sunlight, smiling')...",
     gender_label: 'Influencer Gender',
     gender_female: 'Female',
     gender_male: 'Male',
@@ -55,19 +57,19 @@ const TEXTS: Record<'english' | 'arabic', any> = {
     structure_2x15s: '2 x 15s parts (30s total)',
     vibe_label: 'Vibe / Tone',
     vibe_energetic: 'Energetic',
-    vibe_calm: 'Calm & Trustworthy',
-    vibe_luxurious: 'Luxurious & Aspirational',
-    vibe_playful: 'Playful & Fun',
-    setting_label: 'Setting',
-    setting_studio: 'Minimalist Studio',
-    setting_home: 'Cozy Home',
-    setting_outdoor: 'Outdoor Nature',
-    setting_urban: 'Urban Cityscape',
-    interaction_label: 'Interaction with Product',
+    vibe_calm: 'Calm',
+    vibe_luxurious: 'Luxurious',
+    vibe_playful: 'Playful',
+    setting_label: 'Setting / Location',
+    setting_studio: 'Studio',
+    setting_home: 'Home',
+    setting_outdoor: 'Outdoor',
+    setting_urban: 'Urban',
+    interaction_label: 'Recommended Action',
     just_speaking: 'Just speaking',
     watermark_title: 'Optional: Add Watermark',
     watermark_cta:
-      'Click to upload a logo (PNG with transparent background recommended)',
+      'Click to upload a logo (PNG)',
     generate_video: 'Generate Video',
     preparing_video: 'Preparing...',
     errors: {
@@ -102,32 +104,33 @@ const TEXTS: Record<'english' | 'arabic', any> = {
     generate_script: 'توليد السكربت',
     generating: 'جاري التوليد...',
     customize_title: 'تخصيص الفيديو الخاص بك',
-    create_video_title: '٣. إنشاء الفيديو',
+    create_video_title: '٣. اللمسات الأخيرة',
+    script_label: 'السكربت (منطوق)',
     script_placeholder: 'السكربت الذي تم إنشاؤه...',
-    video_prompt_title: 'وصف الفيديو',
+    video_prompt_label: 'وصف المشهد (مرئي)',
     video_prompt_placeholder:
-      'مثال: امرأة شقراء في مطبخ حديث، تبتسم وهي تستخدم المنتج...',
+      'صف حركة المشهد (مثال: امرأة ترفع الزجاجة نحو ضوء الشمس وتبتسم)...',
     gender_label: 'جنس المؤثر',
     gender_female: 'أنثى',
     gender_male: 'ذكر',
     structure_label: 'مدة الفيديو',
     structure_10s: '10 ثوانٍ',
     structure_15s: '15 ثانية',
-    structure_2x15s: 'جزئين × 15 ثانية (إجمالي 30 ثانية)',
-    vibe_label: 'الجو العام / النبرة',
+    structure_2x15s: 'جزئين × 15 ثانية',
+    vibe_label: 'الجو العام',
     vibe_energetic: 'حيوي',
-    vibe_calm: 'هادئ وموثوق',
-    vibe_luxurious: 'فاخر وطموح',
-    vibe_playful: 'مرح وممتع',
+    vibe_calm: 'هادئ',
+    vibe_luxurious: 'فاخر',
+    vibe_playful: 'مرح',
     setting_label: 'الموقع',
-    setting_studio: 'استوديو بسيط',
-    setting_home: 'منزل دافئ',
-    setting_outdoor: 'طبيعة خارجية',
-    setting_urban: 'منظر مدينة حضري',
-    interaction_label: 'التفاعل مع المنتج',
+    setting_studio: 'استوديو',
+    setting_home: 'منزل',
+    setting_outdoor: 'خارجي',
+    setting_urban: 'حضري',
+    interaction_label: 'الإجراء الموصى به',
     just_speaking: 'يتحدث فقط',
     watermark_title: 'اختياري: إضافة علامة مائية',
-    watermark_cta: 'انقر لرفع شعار (يوصى بـ PNG بخلفية شفافة)',
+    watermark_cta: 'انقر لرفع شعار (PNG)',
     generate_video: 'توليد الفيديو',
     preparing_video: 'تحضير...',
     errors: {
@@ -151,8 +154,6 @@ const TEXTS: Record<'english' | 'arabic', any> = {
     },
   },
 };
-
-// --- Helper Functions ---
 
 function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -240,7 +241,6 @@ async function describeImageForPrompt(
   return response.text;
 }
 
-// --- UI Components ---
 const OptionButton: React.FC<{
   isSelected: boolean;
   onClick: () => void;
@@ -249,15 +249,14 @@ const OptionButton: React.FC<{
 }> = ({isSelected, onClick, icon, label}) => (
   <button
     onClick={onClick}
-    className={`relative flex-grow basis-1/3 p-3 rounded-lg border-2 transition-all duration-200 flex flex-col items-center justify-center gap-2 text-center overflow-hidden
+    className={`relative flex-grow basis-1/3 p-3 rounded-[1.2rem] border transition-all duration-300 flex flex-col items-center justify-center gap-1.5 text-center overflow-hidden group min-h-[5rem]
       ${
         isSelected
-          ? 'border-transparent text-white shadow-lg scale-105'
-          : 'bg-component-dark border-border-dark text-text-secondary hover:bg-border-dark hover:border-border-dark/50'
+          ? 'border-primary bg-primary/20 text-white shadow-glow-sm'
+          : 'border-white/10 bg-white/5 text-white/50 hover:bg-white/10 hover:text-white'
       }`}>
-    {isSelected && <div className="absolute inset-0 bg-gradient-to-r from-primary-start to-primary-end -z-10"></div>}
-    {icon && <div className="w-7 h-7">{icon}</div>}
-    <span className="text-sm font-semibold">{label}</span>
+    {icon && <div className={`${isSelected ? 'text-white' : 'text-white/40 group-hover:text-white'}`}>{icon}</div>}
+    <span className="text-[11px] font-bold uppercase tracking-wide">{label}</span>
   </button>
 );
 
@@ -267,67 +266,37 @@ const Stepper: React.FC<{currentStep: number; texts: any}> = ({
 }) => {
   const steps = [texts.upload, texts.customize, texts.generate];
   return (
-    <div className="flex items-center justify-center w-full px-4 mb-8">
+    <div className="flex items-center justify-between w-full px-8 mb-8 relative">
+      <div className="absolute left-10 right-10 top-1/2 h-0.5 bg-white/10 -z-10"></div>
+      <div className="absolute left-10 top-1/2 h-0.5 bg-primary transition-all duration-500" style={{width: `${((currentStep - 1) / (steps.length - 1)) * 80}%`}}></div>
+      
       {steps.map((label, index) => {
         const stepNumber = index + 1;
         const isActive = stepNumber === currentStep;
         const isCompleted = stepNumber < currentStep;
         return (
-          <React.Fragment key={stepNumber}>
-            <div className="flex flex-col items-center text-center">
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg transition-all duration-300 border-2 relative overflow-hidden
-                  ${
-                    isActive
-                      ? 'border-primary/50 text-white'
-                      : isCompleted
-                      ? 'border-transparent text-white'
-                      : 'bg-component-dark border-border-dark text-text-secondary'
-                  }`}>
-                {(isActive || isCompleted) && <div className="absolute inset-0 bg-gradient-to-br from-primary-start to-primary-end -z-10"></div>}
-                {isCompleted ? (
-                  <span className="material-symbols-outlined">check</span>
-                ) : (
-                  stepNumber
-                )}
-              </div>
-              <p
-                className={`mt-2 text-xs font-semibold w-20 transition-colors ${
-                  isActive || isCompleted
-                    ? 'text-text-dark'
-                    : 'text-text-secondary'
+          <div key={stepNumber} className="flex flex-col items-center gap-2">
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 border-2 
+                ${
+                  isActive
+                    ? 'bg-black border-primary text-primary shadow-glow-sm scale-110'
+                    : isCompleted
+                    ? 'bg-primary border-primary text-white'
+                    : 'bg-black border-white/20 text-white/30'
                 }`}>
-                {label}
-              </p>
+              {isCompleted ? (
+                <span className="material-symbols-rounded text-sm">check</span>
+              ) : (
+                stepNumber
+              )}
             </div>
-            {index < steps.length - 1 && (
-              <div className="flex-grow h-1 mx-2 rounded relative">
-                <div className="absolute inset-0 bg-border-dark rounded"></div>
-                <div
-                  className={`absolute inset-0 bg-gradient-to-r from-primary-start to-primary-end rounded transition-transform duration-500 ease-out ${
-                    isCompleted ? 'scale-x-100' : 'scale-x-0'
-                  }`}
-                  style={{transformOrigin: 'left'}}></div>
-              </div>
-            )}
-          </React.Fragment>
+          </div>
         );
       })}
     </div>
   );
 };
-
-const GlassCard: React.FC<{children: React.ReactNode; className?: string}> = ({
-  children,
-  className,
-}) => (
-  <div
-    className={`p-6 bg-component-dark/30 rounded-xl border border-white/10 backdrop-blur-lg shadow-lg ${className}`}>
-    {children}
-  </div>
-);
-
-// --- Main Component ---
 
 export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
   language,
@@ -365,7 +334,6 @@ export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
 
   // Lifecycle
   useEffect(() => {
-    // Clean up object URLs
     return () => {
       if (productImageUrl) URL.revokeObjectURL(productImageUrl);
       if (logoUrl) URL.revokeObjectURL(logoUrl);
@@ -483,7 +451,7 @@ export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
       const details: UgcVideoJobDetails = {
         productImageBase64,
         productDescription,
-        aspectRatio: '9:16', // Default to portrait for mobile-first UGC
+        aspectRatio: '9:16',
         scripts: scriptsToProcess,
         gender,
         interaction: selectedInteraction,
@@ -533,12 +501,12 @@ export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
   ]);
 
   const renderStep1_Upload = () => (
-    <GlassCard>
-      <h3 className="text-lg font-semibold text-text-dark mb-4 text-center">
+    <div className="glass-card p-6 rounded-[2.5rem] animate-slide-up border border-white/10">
+      <h3 className="text-xl font-bold text-white mb-6 text-center">
         {texts.upload_title}
       </h3>
       <div
-        className="relative border-2 border-dashed border-border-dark rounded-lg p-6 text-center cursor-pointer hover:border-primary transition-colors"
+        className="relative border-2 border-dashed border-white/10 rounded-3xl p-8 text-center cursor-pointer hover:border-primary hover:bg-white/5 transition-all group"
         onClick={() => productImageInputRef.current?.click()}>
         <input
           type="file"
@@ -551,170 +519,187 @@ export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
           <img
             src={productImageUrl}
             alt="Product Preview"
-            className="mx-auto max-h-48 rounded-md"
+            className="mx-auto max-h-64 rounded-xl shadow-2xl"
           />
         ) : (
-          <div className="flex flex-col items-center text-text-secondary">
-            <UploadIcon className="w-12 h-12 text-text-secondary/50" />
-            <p className="mt-2 font-semibold text-text-dark">{texts.upload_cta}</p>
-            <p className="text-xs text-text-secondary">{texts.upload_formats}</p>
+          <div className="flex flex-col items-center">
+            <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <UploadIcon className="w-10 h-10 text-white/40" />
+            </div>
+            <p className="font-bold text-white">{texts.upload_cta}</p>
+            <p className="text-xs text-white/40 mt-1">{texts.upload_formats}</p>
           </div>
         )}
       </div>
       <button
         onClick={handleGenerateScript}
         disabled={!productImageBase64 || status === 'generating_script'}
-        className="w-full mt-6 px-6 py-3 rounded-lg bg-gradient-to-r from-primary-start to-primary-end text-white font-semibold transition-all hover:opacity-90 hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed">
-        {status === 'generating_script'
-          ? texts.generating
-          : texts.generate_script}
+        className="w-full mt-8 h-14 rounded-full bg-gradient-to-r from-primary-start to-primary-end text-white font-bold shadow-glow hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-white/10">
+        {status === 'generating_script' ? (
+            <>
+             <span className="material-symbols-rounded animate-spin">progress_activity</span>
+             {texts.generating}
+            </>
+        ) : texts.generate_script}
       </button>
-    </GlassCard>
+    </div>
   );
 
   const renderStep2_Customize = () => (
-    <GlassCard className="animate-fade-in">
-      <h3 className="text-lg font-semibold text-text-dark mb-4 text-center">
+    <div className="glass-card p-6 rounded-[2.5rem] animate-slide-up space-y-6 border border-white/10">
+      <h3 className="text-xl font-bold text-white mb-2 text-center">
         {texts.customize_title}
       </h3>
-      <textarea
-        value={script}
-        onChange={(e) => setScript(e.target.value)}
-        className="w-full bg-background-dark border-border-dark rounded-md p-3 text-text-dark mb-4 h-28 focus:ring-primary focus:border-primary"
-        placeholder={texts.script_placeholder}
-      />
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-text-secondary mb-2">
-          {texts.video_prompt_title}
-        </label>
-        <textarea
-          value={videoPrompt}
-          onChange={(e) => setVideoPrompt(e.target.value)}
-          className="w-full bg-background-dark border-border-dark rounded-md p-3 text-text-dark h-24 focus:ring-primary focus:border-primary"
-          placeholder={texts.video_prompt_placeholder}
+      
+      {/* Script Input */}
+      <div>
+         <label className="text-[10px] font-bold uppercase text-white/40 mb-2 block tracking-wider">{texts.script_label}</label>
+         <textarea
+            value={script}
+            onChange={(e) => setScript(e.target.value)}
+            className="w-full glass-input rounded-2xl p-4 text-sm text-white placeholder:text-white/20 min-h-[100px] resize-none focus:ring-1 focus:ring-primary/50"
+            placeholder={texts.script_placeholder}
         />
       </div>
-      <div className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-text-secondary mb-2">
+
+      {/* Scene Prompt Input */}
+      <div>
+         <label className="text-[10px] font-bold uppercase text-white/40 mb-2 block tracking-wider">{texts.video_prompt_label}</label>
+         <textarea
+            value={videoPrompt}
+            onChange={(e) => setVideoPrompt(e.target.value)}
+            className="w-full glass-input rounded-2xl p-4 text-sm text-white placeholder:text-white/20 min-h-[80px] resize-none focus:ring-1 focus:ring-primary/50"
+            placeholder={texts.video_prompt_placeholder}
+        />
+      </div>
+
+      {/* Gender Selection */}
+      <div>
+        <label className="text-[10px] font-bold uppercase text-white/40 mb-2 block tracking-wider">
             {texts.gender_label}
-          </label>
-          <div className="flex gap-2">
+        </label>
+        <div className="flex gap-3">
             <OptionButton
               label={texts.gender_female}
               isSelected={gender === 'female'}
               onClick={() => setGender('female')}
+              icon={<span className="material-symbols-rounded text-2xl">female</span>}
             />
             <OptionButton
               label={texts.gender_male}
               isSelected={gender === 'male'}
               onClick={() => setGender('male')}
+              icon={<span className="material-symbols-rounded text-2xl">male</span>}
             />
-          </div>
         </div>
+      </div>
+
+      {/* Interaction Selection (From AI) */}
+      {interactionOptions.length > 0 && (
         <div>
-          <label className="block text-sm font-medium text-text-secondary mb-2">
-            {texts.vibe_label}
+          <label className="text-[10px] font-bold uppercase text-white/40 mb-2 block tracking-wider">
+            {texts.interaction_label}
           </label>
-          <div className="flex flex-wrap gap-2">
-            <OptionButton
-              label={texts.vibe_energetic}
-              icon={<BoltIcon />}
-              isSelected={vibe === 'energetic'}
-              onClick={() => setVibe('energetic')}
-            />
-            <OptionButton
-              label={texts.vibe_calm}
-              icon={<ShieldCheckIcon />}
-              isSelected={vibe === 'calm'}
-              onClick={() => setVibe('calm')}
-            />
-            <OptionButton
-              label={texts.vibe_luxurious}
-              icon={<SparklesIcon />}
-              isSelected={vibe === 'luxurious'}
-              onClick={() => setVibe('luxurious')}
-            />
-            <OptionButton
-              label={texts.vibe_playful}
-              icon={<FaceSmileIcon />}
-              isSelected={vibe === 'playful'}
-              onClick={() => setVibe('playful')}
-            />
-          </div>
+          <select
+            value={selectedInteraction}
+            onChange={(e) => setSelectedInteraction(e.target.value)}
+            className="w-full glass-input rounded-2xl p-4 text-sm text-white appearance-none focus:ring-1 focus:ring-primary/50 cursor-pointer">
+            {interactionOptions.map((opt, i) => (
+              <option key={i} value={opt} className="bg-[#1a1a20] text-white">{opt}</option>
+            ))}
+          </select>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-text-secondary mb-2">
+      )}
+
+      {/* Setting Selection */}
+      <div>
+          <label className="text-[10px] font-bold uppercase text-white/40 mb-2 block tracking-wider">
             {texts.setting_label}
           </label>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-2 gap-3">
             <OptionButton
               label={texts.setting_studio}
-              icon={<BuildingOfficeIcon />}
+              icon={<span className="material-symbols-rounded">videocam</span>}
               isSelected={setting === 'studio'}
               onClick={() => setSetting('studio')}
             />
             <OptionButton
               label={texts.setting_home}
-              icon={<HomeIcon />}
+              icon={<HomeIcon className="w-5 h-5" />}
               isSelected={setting === 'home'}
               onClick={() => setSetting('home')}
             />
             <OptionButton
               label={texts.setting_outdoor}
-              icon={<SunIcon />}
+              icon={<SunIcon className="w-5 h-5" />}
               isSelected={setting === 'outdoor'}
               onClick={() => setSetting('outdoor')}
             />
             <OptionButton
               label={texts.setting_urban}
-              icon={<BuildingOfficeIcon />}
+              icon={<BuildingOfficeIcon className="w-5 h-5" />}
               isSelected={setting === 'urban'}
               onClick={() => setSetting('urban')}
             />
           </div>
-        </div>
-        {interactionOptions.length > 0 && (
-          <div>
-            <label className="block text-sm font-medium text-text-secondary mb-2">
-              {texts.interaction_label}
-            </label>
-            <select
-              value={selectedInteraction}
-              onChange={(e) => setSelectedInteraction(e.target.value)}
-              className="w-full bg-background-dark border-border-dark rounded-md py-2 px-3 text-text-dark focus:ring-primary focus:border-primary">
-              {interactionOptions.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
       </div>
-      <div className="flex gap-4 mt-8">
+
+      {/* Vibe Selection */}
+      <div>
+          <label className="text-[10px] font-bold uppercase text-white/40 mb-2 block tracking-wider">
+            {texts.vibe_label}
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <OptionButton
+              label={texts.vibe_energetic}
+              icon={<BoltIcon className="w-5 h-5" />}
+              isSelected={vibe === 'energetic'}
+              onClick={() => setVibe('energetic')}
+            />
+            <OptionButton
+              label={texts.vibe_calm}
+              icon={<ShieldCheckIcon className="w-5 h-5" />}
+              isSelected={vibe === 'calm'}
+              onClick={() => setVibe('calm')}
+            />
+            <OptionButton
+              label={texts.vibe_luxurious}
+              icon={<SparklesIcon className="w-5 h-5" />}
+              isSelected={vibe === 'luxurious'}
+              onClick={() => setVibe('luxurious')}
+            />
+            <OptionButton
+              label={texts.vibe_playful}
+              icon={<FaceSmileIcon className="w-5 h-5" />}
+              isSelected={vibe === 'playful'}
+              onClick={() => setVibe('playful')}
+            />
+          </div>
+        </div>
+
+      <div className="flex gap-4 pt-4">
         <button
           onClick={() => setCurrentStep(1)}
-          className="w-full px-6 py-3 rounded-lg bg-component-dark border border-border-dark hover:bg-border-dark text-text-dark font-semibold transition-colors">
+          className="flex-1 h-14 rounded-full bg-white/5 border border-white/10 text-white font-semibold hover:bg-white/10">
           {texts.buttons.back}
         </button>
         <button
           onClick={() => setCurrentStep(3)}
-          className="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-primary-start to-primary-end text-white font-semibold transition-all hover:opacity-90 hover:-translate-y-px">
+          className="flex-1 h-14 rounded-full bg-white text-black font-bold hover:opacity-90">
           {texts.buttons.next}
         </button>
       </div>
-    </GlassCard>
+    </div>
   );
 
   const renderStep3_Generate = () => (
-    <GlassCard className="animate-fade-in">
-      <h3 className="text-lg font-semibold text-text-dark mb-4 text-center">
+    <div className="glass-card p-6 rounded-[2.5rem] animate-slide-up space-y-6 border border-white/10">
+      <h3 className="text-xl font-bold text-white mb-2 text-center">
         {texts.create_video_title}
       </h3>
-      <div className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-text-secondary mb-2">
+      
+      <div>
+          <label className="text-[10px] font-bold uppercase text-white/40 mb-2 block tracking-wider">
             {texts.structure_label}
           </label>
           <div className="flex gap-2">
@@ -734,13 +719,12 @@ export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
               onClick={() => setVideoLengthOption('2x15s')}
             />
           </div>
-        </div>
-        <div>
-          <h4 className="text-sm font-medium text-text-secondary mb-2">
-            {texts.watermark_title}
-          </h4>
-          <div
-            className="border border-dashed border-border-dark rounded-lg p-4 text-center cursor-pointer hover:border-primary"
+      </div>
+      
+      <div>
+         <label className="text-[10px] font-bold uppercase text-white/40 mb-2 block tracking-wider">{texts.watermark_title}</label>
+         <div
+            className="border border-dashed border-white/10 rounded-3xl p-6 text-center cursor-pointer hover:bg-white/5 transition-colors"
             onClick={() => logoInputRef.current?.click()}>
             <input
               type="file"
@@ -750,63 +734,35 @@ export const UgcVideoCreator: React.FC<UgcVideoCreatorProps> = ({
               onChange={handleLogoChange}
             />
             {logoUrl ? (
-              <img
-                src={logoUrl}
-                alt="Logo Preview"
-                className="max-h-12 mx-auto"
-              />
+              <img src={logoUrl} alt="Logo" className="max-h-12 mx-auto" />
             ) : (
-              <p className="text-text-secondary text-sm">{texts.watermark_cta}</p>
+              <p className="text-white/40 text-xs">{texts.watermark_cta}</p>
             )}
           </div>
-        </div>
       </div>
-      <div className="flex gap-4 mt-8">
+
+      <div className="flex gap-4 pt-4">
         <button
           onClick={() => setCurrentStep(2)}
-          className="w-full px-6 py-3 rounded-lg bg-component-dark border border-border-dark hover:bg-border-dark text-text-dark font-semibold transition-colors">
+          className="flex-1 h-14 rounded-full bg-white/5 border border-white/10 text-white font-semibold hover:bg-white/10">
           {texts.buttons.back}
         </button>
         <button
           onClick={handleGenerateVideo}
           disabled={isPreparing}
-          className="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-primary-start to-primary-end text-white font-semibold transition-all hover:opacity-90 hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed">
+          className="flex-[2] h-14 rounded-full bg-gradient-to-r from-primary-start to-primary-end text-white font-bold shadow-glow hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 border border-white/10">
           {isPreparing ? texts.preparing_video : texts.generate_video}
         </button>
       </div>
-    </GlassCard>
+    </div>
   );
 
-  const renderContent = () => {
-    switch (currentStep) {
-      case 1:
-        return renderStep1_Upload();
-      case 2:
-        return renderStep2_Customize();
-      case 3:
-        return renderStep3_Generate();
-      default:
-        return renderStep1_Upload();
-    }
-  };
-
   return (
-    <div className="max-w-3xl mx-auto p-4 animate-fade-in pb-24">
-      {error && (
-        <ErrorModal
-          title={error[0]}
-          message={error.slice(1)}
-          onClose={() => setError(null)}
-          onSelectKey={() => {
-            /* Placeholder */
-          }}
-          addKeyButtonText="Add API Key"
-          closeButtonText="Close"
-        />
-      )}
-
+    <div className="p-4 pb-32 max-w-xl mx-auto pt-8">
       <Stepper currentStep={currentStep} texts={texts.stepper} />
-      {renderContent()}
+      {currentStep === 1 && renderStep1_Upload()}
+      {currentStep === 2 && renderStep2_Customize()}
+      {currentStep === 3 && renderStep3_Generate()}
     </div>
   );
 };

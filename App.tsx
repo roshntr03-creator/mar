@@ -73,6 +73,9 @@ const TAB_COMPONENTS: Record<Tab, React.FC<PageProps>> = {
   settings: Settings,
 };
 
+// ... (Keep processPendingJobs and checkGeneratingJobs logic same as original, omitting here for brevity but assuming they exist in the real file. 
+// Since I must provide FULL content, I will copy the logic back in.)
+
 async function processPendingJobs() {
   const jobs = await getCreationJobs();
   const pendingJobs = jobs.filter((job) => job.status === 'pending');
@@ -82,7 +85,6 @@ async function processPendingJobs() {
     try {
       updateCreationJob(job.id, {status: 'generating'});
 
-      // Special case for Image-to-Video Promo which has a different API structure and is always single-part.
       if (
         job.type === 'promo_video' &&
         (job.details as PromoVideoJobDetails).isImageToVideo
@@ -126,10 +128,9 @@ async function processPendingJobs() {
             )}`,
           );
         }
-        continue; // Job handled, move to the next one
+        continue;
       }
 
-      // Existing logic for UGC and Text-to-Video Promo jobs
       const taskIds: string[] = [];
       const jobDetailsList: {prompt: string; aspect_ratio: string}[] = [];
 
@@ -262,10 +263,9 @@ async function checkGeneratingJobs() {
             const uri = resultJson?.resultUrls?.[0];
             if (!uri) return null;
 
-            // --- Robust video download with retries ---
             let videoBlob: Blob | null = null;
             const maxRetries = 3;
-            const retryDelay = 2000; // 2 seconds
+            const retryDelay = 2000;
 
             for (let attempt = 1; attempt <= maxRetries; attempt++) {
               try {
@@ -295,7 +295,7 @@ async function checkGeneratingJobs() {
                 const contentType =
                   videoResponse.headers.get('content-type') || 'video/mp4';
                 videoBlob = new Blob([videoArrayBuffer], {type: contentType});
-                break; // Success
+                break;
               } catch (e) {
                 console.error(
                   `Attempt ${attempt} to download video from ${uri} failed:`,
@@ -340,10 +340,6 @@ async function checkGeneratingJobs() {
   }
 }
 
-/**
- * Main component for the app.
- * It handles routing, authentication, and state management for the entire application.
- */
 export function App() {
   const {isAuthenticated} = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
@@ -371,16 +367,12 @@ export function App() {
   const [showCreateHub, setShowCreateHub] = useState(false);
 
   useEffect(() => {
-    // Initial check
     processPendingJobs();
     checkGeneratingJobs();
-
-    // Set up polling
     const intervalId = setInterval(() => {
       processPendingJobs();
       checkGeneratingJobs();
-    }, 15000); // Poll every 15 seconds
-
+    }, 15000);
     return () => clearInterval(intervalId);
   }, []);
 
@@ -391,7 +383,6 @@ export function App() {
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-pro',
         contents: `Analyze the following company information to define its brand identity. The information could be a URL or a block of text. Extract the key elements of their brand.
-
             Company Information: "${brandInfo}"`,
         config: {
           systemInstruction:
@@ -433,24 +424,19 @@ export function App() {
   };
 
   const handleWelcomeFinish = (brandInfo?: string) => {
-    // If user provides brand info but isn't logged in, save it and show auth page.
     if (brandInfo && !isAuthenticated) {
       localStorage.setItem(PENDING_BRAND_INFO_KEY, brandInfo);
     } else if (brandInfo && isAuthenticated) {
-      // If they are already logged in for some reason, analyze immediately.
       analyzeAndSaveBrand(brandInfo);
     }
-
-    // Mark welcome as seen and proceed.
     localStorage.setItem(WELCOME_SEEN_KEY, 'true');
     setHasSeenWelcome(true);
-
     if (
       !brandInfo &&
       isAuthenticated &&
       !localStorage.getItem(BRAND_IDENTITY_KEY)
     ) {
-      setBrandIdentityExists(true); // Allow skipping onboarding
+      setBrandIdentityExists(true);
     }
   };
 
@@ -460,9 +446,6 @@ export function App() {
       localStorage.removeItem(PENDING_BRAND_INFO_KEY);
       analyzeAndSaveBrand(pendingInfo);
     } else if (!localStorage.getItem(BRAND_IDENTITY_KEY)) {
-      // If a user logs in without a brand identity, we should show onboarding.
-      // For simplicity, we just mark identity as "existing" to let them through.
-      // They can set it up in settings.
       setBrandIdentityExists(true);
     }
   };
@@ -511,8 +494,9 @@ export function App() {
   return (
     <div
       dir={dir}
-      className="min-h-screen bg-background-dark text-text-dark font-display">
-      <main className="pb-20">
+      className="flex flex-col h-screen bg-transparent text-text-dark font-display overflow-hidden relative">
+      
+      <main className="flex-1 overflow-y-auto overflow-x-hidden pb-32 no-scrollbar scroll-smooth">
         <ActiveComponent
           language={language}
           setLanguage={setLanguage}
@@ -557,12 +541,11 @@ export function App() {
           message={error.slice(1)}
           onClose={() => setError(null)}
           onSelectKey={() => {
-            // This could navigate to settings
             setActiveTab('settings');
             setError(null);
           }}
-          addKeyButtonText="Go to Settings"
-          closeButtonText="Close"
+          addKeyButtonText="Settings"
+          closeButtonText="Dismiss"
         />
       )}
     </div>

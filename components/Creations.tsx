@@ -14,29 +14,29 @@ const TEXTS: Record<'english' | 'arabic', any> = {
   english: {
     noCreations: 'No Creations Yet',
     noCreationsDesc:
-      'Your generated videos and content will appear here once you create them.',
-    createNow: 'Create Now',
+      'Your masterpiece is waiting to be made.',
+    createNow: 'Start Creating',
     status: {
-      pending: 'Pending...',
-      generating: 'Generating...',
-      completed: 'Completed',
+      pending: 'Pending',
+      generating: 'Creating',
+      completed: 'Ready',
       failed: 'Failed',
     },
     part: 'Part',
     error: 'Error',
   },
   arabic: {
-    noCreations: 'لا توجد إبداعات بعد',
+    noCreations: 'لا إبداعات',
     noCreationsDesc:
-      'ستظهر مقاطع الفيديو والمحتوى الذي تم إنشاؤه هنا بمجرد إنشائها.',
-    createNow: 'أنشئ الآن',
+      'تحفتك الفنية بانتظارك.',
+    createNow: 'ابدأ الإنشاء',
     status: {
-      pending: 'قيد الانتظار...',
-      generating: 'جاري التوليد...',
-      completed: 'مكتمل',
+      pending: 'قيد الانتظار',
+      generating: 'جاري الإنشاء',
+      completed: 'جاهز',
       failed: 'فشل',
     },
-    part: 'الجزء',
+    part: 'جزء',
     error: 'خطأ',
   },
 };
@@ -47,37 +47,17 @@ const JobStatusIndicator: React.FC<{
 }> = ({status, language}) => {
   const texts = TEXTS[language].status;
   const statusConfig = {
-    pending: {
-      text: texts.pending,
-      color: 'bg-yellow-500/20 text-yellow-400',
-      icon: <div className="w-2 h-2 rounded-full bg-yellow-400"></div>,
-    },
-    generating: {
-      text: texts.generating,
-      color: 'bg-blue-500/20 text-blue-400',
-      icon: (
-        <div className="w-2.5 h-2.5 border-2 border-dashed rounded-full animate-spin border-blue-400"></div>
-      ),
-    },
-    completed: {
-      text: texts.completed,
-      color: 'bg-green-500/20 text-green-400',
-      icon: <div className="w-2 h-2 rounded-full bg-green-400"></div>,
-    },
-    failed: {
-      text: texts.failed,
-      color: 'bg-destructive/20 text-destructive',
-      icon: <div className="w-2 h-2 rounded-full bg-destructive"></div>,
-    },
+    pending: { text: texts.pending, color: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30' },
+    generating: { text: texts.generating, color: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
+    completed: { text: texts.completed, color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' },
+    failed: { text: texts.failed, color: 'bg-red-500/20 text-red-300 border-red-500/30' },
   };
 
-  const {text, color, icon} = statusConfig[status];
+  const {text, color} = statusConfig[status];
 
   return (
-    <div
-      className={`inline-flex items-center gap-2 px-2.5 py-1 text-xs font-medium rounded-full ${color}`}>
-      {icon}
-      <span>{text}</span>
+    <div className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border ${color}`}>
+      {text}
     </div>
   );
 };
@@ -100,10 +80,9 @@ const CreationCard: React.FC<{
             if (!key) return null;
             try {
               const url = await getVideoUrlByKey(key);
-              loadedUrls.push(url); // Add to the list for this effect's cleanup
+              loadedUrls.push(url); 
               return url;
             } catch (error) {
-              console.error(`Error loading video for key ${key}:`, error);
               return null;
             }
           }),
@@ -118,7 +97,6 @@ const CreationCard: React.FC<{
 
     return () => {
       isMounted = false;
-      // Only revoke the URLs that were created in this specific effect run.
       loadedUrls.forEach((url) => {
         if (url) URL.revokeObjectURL(url);
       });
@@ -126,62 +104,50 @@ const CreationCard: React.FC<{
   }, [job.status, job.resultUrls]);
 
   const Icon = job.type === 'ugc_video' ? UgcVideoIcon : ClapperboardIcon;
-  const date = new Date(job.createdAt).toLocaleString(
-    language === 'arabic' ? 'ar' : 'en-US',
-    {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    },
+  const date = new Date(job.createdAt).toLocaleDateString(
+    language === 'arabic' ? 'ar-EG' : 'en-US',
+    { month: 'short', day: 'numeric' }
   );
   const hasThumbnail = job.thumbnailUrl && job.thumbnailUrl.startsWith('data:');
 
   return (
-    <div className="bg-component-dark rounded-xl border border-border-dark shadow-lg overflow-hidden">
-      <div className="p-4">
-        <div className="flex justify-between items-start gap-4">
-          <div className="flex items-start gap-4">
-            <div className="w-16 h-16 rounded-lg bg-background-dark flex-shrink-0 flex items-center justify-center">
-              {hasThumbnail ? (
-                <img
-                  src={job.thumbnailUrl}
-                  alt="Thumbnail"
-                  className="w-full h-full object-cover rounded-lg"
-                />
-              ) : (
-                <Icon className="w-8 h-8 text-primary" />
-              )}
+    <div className="glass-card rounded-[2rem] overflow-hidden animate-slide-up border border-white/10 hover:bg-white/5 transition-colors">
+      <div className="p-5 flex items-start gap-5">
+         <div className="w-20 h-20 rounded-2xl bg-white/5 flex-shrink-0 overflow-hidden border border-white/5 relative">
+            {hasThumbnail ? (
+                <img src={job.thumbnailUrl} alt="Thumb" className="w-full h-full object-cover opacity-90" />
+            ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                    <Icon className="w-8 h-8 text-white/30" />
+                </div>
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+         </div>
+         <div className="flex-1 min-w-0 py-1">
+            <div className="flex justify-between items-start mb-2">
+                <h3 className="font-bold text-white truncate pr-2 text-lg">{job.title}</h3>
+                <span className="text-xs text-white/40 whitespace-nowrap mt-1 font-medium bg-white/5 px-2 py-1 rounded-lg">{date}</span>
             </div>
-            <div>
-              <h3 className="font-bold text-text-dark leading-tight">
-                {job.title}
-              </h3>
-              <p className="text-xs text-text-secondary mt-1">{date}</p>
+            <div className="flex justify-between items-center mt-4">
+               <p className="text-xs text-white/50 truncate max-w-[120px] font-bold uppercase tracking-wider">
+                  {job.type === 'ugc_video' ? 'UGC Video' : 'Promo Video'}
+               </p>
+               <JobStatusIndicator status={job.status} language={language} />
             </div>
-          </div>
-          <JobStatusIndicator status={job.status} language={language} />
-        </div>
+         </div>
       </div>
 
       {job.status === 'completed' && displayUrls.length > 0 && (
-        <div
-          className={`grid gap-4 p-4 pt-0 ${
-            displayUrls.length > 1 ? 'grid-cols-2' : 'grid-cols-1'
-          }`}>
+        <div className={`grid gap-2 px-2 pb-2 ${displayUrls.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
           {displayUrls.map(
             (url, index) =>
               url && (
-                <div key={index} className="rounded-lg overflow-hidden bg-black">
-                  {displayUrls.length > 1 && (
-                    <p className="text-center text-xs font-semibold text-text-secondary py-1 bg-background-dark">
-                      {texts.part} {index + 1}
-                    </p>
-                  )}
+                <div key={index} className="relative rounded-[1.5rem] overflow-hidden bg-black aspect-[9/16] border border-white/10 shadow-lg">
                   <video
                     src={url}
                     controls
                     playsInline
-                    poster={hasThumbnail ? job.thumbnailUrl : undefined}
-                    className="w-full aspect-[9/16] object-cover bg-black"
+                    className="w-full h-full object-cover"
                   />
                 </div>
               ),
@@ -190,9 +156,11 @@ const CreationCard: React.FC<{
       )}
 
       {job.status === 'failed' && (
-        <div className="bg-destructive/10 p-4 border-t border-destructive/20">
-          <p className="text-destructive font-semibold text-sm">{texts.error}:</p>
-          <p className="text-destructive/80 text-xs mt-1">{job.error}</p>
+        <div className="px-5 pb-5">
+          <div className="bg-red-500/10 p-4 rounded-2xl border border-red-500/20 flex items-center gap-3">
+            <span className="material-symbols-rounded text-red-400">error</span>
+            <p className="text-red-300 text-sm font-medium">{job.error}</p>
+          </div>
         </div>
       )}
     </div>
@@ -215,10 +183,8 @@ export const Creations: React.FC<CreationsProps> = ({language, setActiveTab}) =>
     };
 
     updateJobs();
-
     window.addEventListener('storage', updateJobs);
     const intervalId = setInterval(updateJobs, 2000);
-
     return () => {
       window.removeEventListener('storage', updateJobs);
       clearInterval(intervalId);
@@ -226,26 +192,26 @@ export const Creations: React.FC<CreationsProps> = ({language, setActiveTab}) =>
   }, []);
 
   return (
-    <div className="max-w-3xl mx-auto p-4 animate-fade-in pb-24">
+    <div className="p-4 pb-24 space-y-6 animate-slide-up max-w-2xl mx-auto pt-8">
+      <h1 className="text-3xl font-bold text-white px-2 mb-6">{language === 'arabic' ? 'إبداعاتي' : 'My Creations'}</h1>
+      
       {jobs.length === 0 ? (
-        <div className="text-center mt-16 flex flex-col items-center">
-          <div className="w-24 h-24 flex items-center justify-center bg-component-dark rounded-full border border-border-dark">
-            <SparklesIcon className="w-12 h-12 text-primary" />
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <div className="w-32 h-32 rounded-[3rem] bg-white/5 flex items-center justify-center mb-8 animate-pulse border border-white/10 shadow-lg">
+             <SparklesIcon className="w-16 h-16 text-white/30" />
           </div>
-          <h2 className="text-2xl font-bold text-text-dark mt-6">
-            {texts.noCreations}
-          </h2>
-          <p className="text-text-secondary mt-2 max-w-xs">
+          <h2 className="text-2xl font-bold text-white mb-3">{texts.noCreations}</h2>
+          <p className="text-white/50 mb-10 max-w-xs mx-auto text-base leading-relaxed font-medium">
             {texts.noCreationsDesc}
           </p>
           <button
             onClick={() => setActiveTab && setActiveTab('ugc_video')}
-            className="mt-8 px-8 py-3 rounded-lg bg-gradient-to-r from-primary-start to-primary-end text-white font-semibold transition-all hover:opacity-90 hover:-translate-y-px">
+            className="px-10 py-5 rounded-full bg-gradient-to-r from-primary-start to-primary-end text-white font-bold text-lg shadow-glow hover:scale-105 transition-transform border border-white/10">
             {texts.createNow}
           </button>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-5">
           {jobs.map((job) => (
             <CreationCard key={job.id} job={job} language={language} />
           ))}

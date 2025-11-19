@@ -2,12 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>AI Marketing Suite</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <script type="importmap">
 {
   "imports": {
@@ -28,84 +28,220 @@
         extend: {
           colors: {
             primary: {
-              DEFAULT: '#C084FC',
-              start: '#A855F7',
-              end: '#EC4899',
+              DEFAULT: '#8B5CF6',
+              start: '#6366f1', // Indigo 500
+              end: '#a855f7',   // Purple 500
             },
-            "background-dark": "#000000",
-            "component-dark": "#1E1E1E",
-            "border-dark": "#333333",
-            "text-dark": "#F1F1F1",
-            "text-secondary": "#A0A0A0",
-            "destructive": "#F43F5E",
+            background: {
+              dark: "#030014", // Deep space blue/black
+              card: "rgba(255, 255, 255, 0.03)",
+            },
+            border: {
+              dark: "rgba(255, 255, 255, 0.1)",
+            },
+            text: {
+              dark: "#FFFFFF",
+              secondary: "#94a3b8", // Slate 400
+              muted: "#64748b",
+            },
+            destructive: "#ef4444",
+            success: "#10b981",
           },
           fontFamily: {
-            "display": ["Manrope", "sans-serif"]
+            "display": ["Plus Jakarta Sans", "sans-serif"]
           },
           borderRadius: {
-            "DEFAULT": "0.75rem",
-            "lg": "1rem",
-            "xl": "1.5rem",
+            "xl": "1rem",
+            "2xl": "1.5rem",
+            "3xl": "2rem",
+            "4xl": "2.5rem",
             "full": "9999px"
           },
+          boxShadow: {
+            'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+            'glow': '0 0 20px rgba(139, 92, 246, 0.5)',
+            'glow-sm': '0 0 10px rgba(139, 92, 246, 0.3)',
+          },
           keyframes: {
-            'aurora': {
-              from: { backgroundPosition: '0% 50%' },
-              to: { backgroundPosition: '100% 50%' },
+            'float': {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' },
             },
             'pulse-glow': {
-              '0%, 100%': { boxShadow: '0 0 20px rgba(192, 132, 252, 0.4)', transform: 'scale(1)' },
-              '50%': { boxShadow: '0 0 35px rgba(236, 72, 153, 0.6)', transform: 'scale(1.05)' },
+              '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+              '50%': { opacity: '0.8', transform: 'scale(1.05)' },
             },
-            'slide-in-from-bottom': {
-              from: { transform: 'translateY(100%)' },
-              to: { transform: 'translateY(0)' },
+            'slide-up': {
+              from: { transform: 'translateY(20px)', opacity: '0' },
+              to: { transform: 'translateY(0)', opacity: '1' },
+            },
+            'aurora': {
+              '0%': { transform: 'rotate(0deg) scale(1)' },
+              '50%': { transform: 'rotate(180deg) scale(1.1)' },
+              '100%': { transform: 'rotate(360deg) scale(1)' },
             },
             'shimmer': {
               '100%': { transform: 'translateX(100%)' },
-            },
+            }
           },
           animation: {
-            'aurora': 'aurora 8s ease infinite',
-            'pulse-glow': 'pulse-glow 3s infinite ease-in-out',
-            'slide-in-up': 'slide-in-from-bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
+            'float': 'float 6s ease-in-out infinite',
+            'pulse-glow': 'pulse-glow 3s infinite',
+            'slide-up': 'slide-up 0.5s ease-out forwards',
+            'spin-slow': 'spin 3s linear infinite',
+            'aurora': 'aurora 20s linear infinite',
             'shimmer': 'shimmer 2s infinite',
           },
-          boxShadow: {
-            'glow': '0 0 25px rgba(192, 132, 252, 0.4)',
-            'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
-            'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
-          }
         },
       },
     }
   </script>
     <style>
-      @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(1rem); }
-        to { opacity: 1; transform: translateY(0); }
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #030014;
+        color: #fff;
+        -webkit-tap-highlight-color: transparent;
+        overflow: hidden;
       }
-      .animate-fade-in {
-        animation: fadeIn 0.5s ease-out forwards;
+      
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
       }
-      html {
-        font-family: 'Manrope', sans-serif;
+      ::-webkit-scrollbar-track {
+        background: transparent;
       }
-      .material-symbols-outlined {
-        font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+      ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
       }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      /* Gradient Text */
       .text-gradient {
-        background: linear-gradient(to right, #A855F7, #EC4899);
+        background: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        text-fill-color: transparent;
+      }
+      
+      .text-gradient-primary {
+        background: linear-gradient(to right, #818cf8, #c084fc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      /* Glass Utilities */
+      .glass-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      }
+      
+      /* FIXED: Transparent dark inputs with no white background */
+      .glass-input {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+      .glass-input:focus {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-color: rgba(139, 92, 246, 0.5) !important;
+        outline: none;
+        box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.3);
+      }
+      .glass-input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+      }
+
+      /* Webkit Autofill Override */
+      input:-webkit-autofill,
+      input:-webkit-autofill:hover, 
+      input:-webkit-autofill:focus, 
+      input:-webkit-autofill:active {
+          -webkit-box-shadow: 0 0 0 30px #15151a inset !important;
+          -webkit-text-fill-color: white !important;
+          transition: background-color 5000s ease-in-out 0s;
+      }
+      
+      /* Aurora Background */
+      .aurora-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: -1;
+        background: #030014;
+        overflow: hidden;
+      }
+      .aurora-blob {
+        position: absolute;
+        filter: blur(90px);
+        opacity: 0.35;
+        border-radius: 50%;
+        animation: aurora 25s infinite alternate;
+      }
+      .blob-1 {
+        top: -10%;
+        left: -10%;
+        width: 600px;
+        height: 600px;
+        background: #4338ca; /* Indigo */
+        animation-delay: 0s;
+      }
+      .blob-2 {
+        bottom: -10%;
+        right: -10%;
+        width: 500px;
+        height: 500px;
+        background: #a21caf; /* Fuchsia */
+        animation-delay: -5s;
+      }
+      .blob-3 {
+        top: 40%;
+        left: 30%;
+        width: 700px;
+        height: 700px;
+        background: #5b21b6; /* Purple */
+        opacity: 0.25;
+        animation-delay: -10s;
+      }
+
+      /* Safe area for mobile */
+      .safe-area-bottom {
+        padding-bottom: env(safe-area-inset-bottom, 24px);
+      }
+      .safe-area-top {
+        padding-top: env(safe-area-inset-top, 24px);
+      }
+      
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
       }
     </style>
   <link rel="stylesheet" href="/index.css">
 </head>
-  <body class="bg-background-dark">
-    <div id="root"></div>
+  <body class="bg-background-dark antialiased h-full overflow-hidden text-white selection:bg-primary selection:text-white">
+    <div class="aurora-bg">
+      <div class="aurora-blob blob-1"></div>
+      <div class="aurora-blob blob-2"></div>
+      <div class="aurora-blob blob-3"></div>
+    </div>
+    <div id="root" class="h-full w-full overflow-hidden"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>

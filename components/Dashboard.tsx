@@ -26,35 +26,34 @@ interface DailyTip {
 
 const TEXTS: Record<'english' | 'arabic', any> = {
   english: {
-    welcome: 'Welcome Back!',
-    tipTitle: "Today's Marketing Tip",
-    quickLinks: 'Jump Back In',
-    recentActivity: 'Recent Activity',
+    greeting: 'Hello,',
+    tipTitle: "Daily Insight",
+    quickLinks: 'Create',
+    recentActivity: 'Recent',
     errorFetchingTip:
-      'Could not load a tip right now. Please try again later.',
-    openAiCoach: 'Open AI Coach',
-    coachTitle: 'AI Marketing Coach',
-    coachDescription: 'Need advice? Chat with your AI coach.',
+      'Stay creative! Great things take time.',
+    openAiCoach: 'Ask Coach',
+    coachTitle: 'AI Coach',
+    coachDescription: 'Stuck? Get instant marketing advice.',
   },
   arabic: {
-    welcome: 'مرحباً بعودتك!',
-    tipTitle: 'نصيحة اليوم التسويقية',
-    quickLinks: 'الوصول السريع',
-    recentActivity: 'النشاط الأخير',
+    greeting: 'مرحباً،',
+    tipTitle: 'رؤية اليوم',
+    quickLinks: 'إنشاء',
+    recentActivity: 'الأخيرة',
     errorFetchingTip:
-      'لا يمكن تحميل النصيحة الآن. يرجى المحاولة مرة أخرى لاحقًا.',
-    openAiCoach: 'فتح مدرب الذكاء الاصطناعي',
-    coachTitle: 'مدرب التسويق بالذكاء الاصطناعي',
-    coachDescription:
-      'هل تحتاج إلى نصيحة؟ تحدث مع مدرب الذكاء الاصطناعي الخاص بك.',
+      'كن مبدعاً! الأشياء العظيمة تأخذ وقتاً.',
+    openAiCoach: 'اسأل المدرب',
+    coachTitle: 'مدرب الذكاء',
+    coachDescription: 'محتاج مساعدة؟ احصل على نصيحة فورية.',
   },
 };
 
-const QUICK_LINKS: {id: Tab; icon: React.FC<any>}[] = [
-  {id: 'ugc_video', icon: UgcVideoIcon},
-  {id: 'campaigns', icon: MegaphoneIcon},
-  {id: 'post_assistant', icon: SparklesIcon},
-  {id: 'image_generator', icon: PhotoIcon},
+const QUICK_LINKS: {id: Tab; icon: React.FC<any>; color: string; bg: string}[] = [
+  {id: 'ugc_video', icon: UgcVideoIcon, color: 'text-pink-300', bg: 'bg-pink-500/10 border-pink-500/20'},
+  {id: 'image_generator', icon: PhotoIcon, color: 'text-purple-300', bg: 'bg-purple-500/10 border-purple-500/20'},
+  {id: 'post_assistant', icon: SparklesIcon, color: 'text-cyan-300', bg: 'bg-cyan-500/10 border-cyan-500/20'},
+  {id: 'campaigns', icon: MegaphoneIcon, color: 'text-amber-300', bg: 'bg-amber-500/10 border-amber-500/20'},
 ];
 
 const RECENT_ACTIVITY: {
@@ -65,17 +64,12 @@ const RECENT_ACTIVITY: {
   {
     id: 'ugc_video',
     icon: UgcVideoIcon,
-    time: {en: '3 minutes ago', ar: 'قبل 3 دقائق'},
+    time: {en: '2m ago', ar: 'منذ دقيقتين'},
   },
   {
     id: 'image_editor',
     icon: WandIcon,
-    time: {en: '1 hour ago', ar: 'قبل ساعة'},
-  },
-  {
-    id: 'campaigns',
-    icon: MegaphoneIcon,
-    time: {en: 'Yesterday', ar: 'أمس'},
+    time: {en: '1h ago', ar: 'منذ ساعة'},
   },
 ];
 
@@ -85,27 +79,21 @@ export const Dashboard: React.FC<PageProps> = ({
   setShowAiCoach,
 }) => {
   const [tip, setTip] = useState<string | null>(null);
-  const [isLoadingTip, setIsLoadingTip] = useState(true);
   const [brandName, setBrandName] = useState<string | null>(null);
   const texts = TEXTS[language];
   const langKey = language === 'arabic' ? 'ar' : 'en';
 
   useEffect(() => {
-    // Load brand name from local storage
     const storedProfile = localStorage.getItem('aiMarketingSuite_brandIdentity');
     if (storedProfile) {
       try {
         const profile = JSON.parse(storedProfile);
         setBrandName(profile.brandName);
-      } catch (e) {
-        console.error('Failed to parse brand profile', e);
-      }
+      } catch (e) {}
     }
 
-    // Fetch daily tip
     const fetchTip = async () => {
-      setIsLoadingTip(true);
-      const today = new Date().toISOString().split('T')[0]; // Get YYYY-MM-DD
+      const today = new Date().toISOString().split('T')[0];
       const storedTipString = localStorage.getItem(DAILY_TIP_KEY);
 
       if (storedTipString) {
@@ -113,20 +101,15 @@ export const Dashboard: React.FC<PageProps> = ({
           const storedTip: DailyTip = JSON.parse(storedTipString);
           if (storedTip.date === today) {
             setTip(storedTip.tip);
-            setIsLoadingTip(false);
             return;
           }
-        } catch (e) {
-          console.error('Failed to parse stored tip', e);
-        }
+        } catch (e) {}
       }
 
-      // If no valid tip is stored for today, fetch a new one
       try {
-        const prompt =
-          language === 'arabic'
-            ? 'أعطني نصيحة تسويقية قصيرة وقابلة للتنفيذ لشركة صغيرة أو مبدع. يجب أن تكون النصيحة موجزة وأقل من 280 حرفًا.'
-            : 'Give me a short, actionable marketing tip for a small business or creator. The tip should be concise and under 280 characters.';
+        const prompt = language === 'arabic'
+            ? 'نصيحة تسويقية قصيرة جداً (جملة واحدة) لشركة صغيرة.'
+            : 'Give me a very short, one-sentence marketing tip.';
 
         const response = await ai.models.generateContent({
           model: 'gemini-2.5-flash',
@@ -140,148 +123,105 @@ export const Dashboard: React.FC<PageProps> = ({
           JSON.stringify({tip: newTip, date: today}),
         );
       } catch (error) {
-        console.error('Error fetching daily tip:', error);
         setTip(texts.errorFetchingTip);
-      } finally {
-        setIsLoadingTip(false);
       }
     };
 
     fetchTip();
   }, [language, texts.errorFetchingTip]);
 
-  const TipCardSkeleton = () => (
-    <div className="relative overflow-hidden bg-component-dark p-5 rounded-xl border border-border-dark">
-      <div className="animate-pulse">
-        <div className="flex items-center gap-4 mb-3">
-          <div className="w-8 h-8 rounded-full bg-border-dark"></div>
-          <div className="h-5 w-48 bg-border-dark rounded-md"></div>
-        </div>
-        <div className="space-y-2">
-          <div className="h-4 w-full bg-border-dark rounded-md"></div>
-          <div className="h-4 w-3/4 bg-border-dark rounded-md"></div>
-        </div>
-      </div>
-      <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-    </div>
-  );
-
   return (
-    <div className="max-w-4xl mx-auto p-4 animate-fade-in pb-24 space-y-8">
-      <div>
-        <h1 className="text-4xl sm:text-5xl font-bold text-gradient">
-          {texts.welcome}
-        </h1>
-        {brandName && (
-          <p className="text-lg text-text-secondary mt-1">
-            {language === 'arabic'
-              ? `هنا لوحة تحكم ${brandName}.`
-              : `Here's the dashboard for ${brandName}.`}
-          </p>
-        )}
+    <div className="p-6 space-y-8 animate-slide-up max-w-2xl mx-auto pt-8">
+      
+      {/* Header */}
+      <div className="flex justify-between items-center">
+         <div>
+            <h1 className="text-base font-medium text-white/60 mb-0.5">{texts.greeting}</h1>
+            <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70 tracking-tight">
+               {brandName || (language === 'arabic' ? 'مبدع' : 'Creator')}
+            </h2>
+         </div>
+         <button onClick={() => setShowAiCoach && setShowAiCoach(true)} className="w-12 h-12 rounded-full glass-card p-0.5 hover:bg-white/10 transition-colors flex items-center justify-center border border-white/20 shadow-lg hover:scale-105 duration-200">
+             <AiCoachIcon className="w-6 h-6 text-primary" />
+         </button>
       </div>
 
-      {/* Daily Tip Card */}
-      {isLoadingTip ? (
-        <TipCardSkeleton />
-      ) : (
-        <div className="bg-component-dark p-5 rounded-xl border border-border-dark shadow-lg">
-          <div className="flex items-center gap-3 mb-3">
-            <LightbulbIcon className="w-7 h-7 text-primary" />
-            <h2 className="text-lg font-bold text-text-dark">
-              {texts.tipTitle}
-            </h2>
-          </div>
-          <p className="text-text-secondary text-base leading-relaxed italic">
-            "{tip}"
-          </p>
-        </div>
-      )}
-
-      {/* AI Coach CTA */}
-      <div className="bg-gradient-to-br from-primary-start/20 to-primary-end/20 p-6 rounded-xl border border-primary/30 shadow-glow flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary-start to-primary-end flex items-center justify-center text-white shadow-lg shadow-primary/30">
-            <AiCoachIcon className="w-8 h-8" />
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-text-dark">
-              {texts.coachTitle}
-            </h2>
-            <p className="text-text-secondary mt-1">
-              {texts.coachDescription}
-            </p>
-          </div>
-        </div>
-        <button
-          onClick={() => setShowAiCoach && setShowAiCoach(true)}
-          className="w-full sm:w-auto px-8 py-3 rounded-lg bg-component-dark text-text-dark font-semibold transition-all hover:bg-border-dark flex-shrink-0 border border-border-dark">
-          {texts.openAiCoach}
-        </button>
+      {/* Daily Tip */}
+      <div className="glass-card p-6 rounded-[2rem] relative overflow-hidden group border border-white/10 bg-gradient-to-br from-white/5 to-transparent">
+         <div className="absolute -right-6 -top-6 w-24 h-24 bg-yellow-500/20 rounded-full blur-2xl group-hover:bg-yellow-500/30 transition-colors"></div>
+         <div className="flex items-start gap-5 relative z-10">
+            <div className="w-12 h-12 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center shrink-0 shadow-sm">
+               <LightbulbIcon className="w-6 h-6 text-yellow-300" />
+            </div>
+            <div>
+               <h3 className="text-xs font-bold text-yellow-200/80 uppercase tracking-wider mb-2">{texts.tipTitle}</h3>
+               <p className="text-base font-medium text-white leading-relaxed">{tip || "..."}</p>
+            </div>
+         </div>
       </div>
 
-      {/* Quick Links */}
+      {/* Quick Links Grid */}
       <div>
-        <h2 className="text-xl font-bold text-text-dark mb-4">
-          {texts.quickLinks}
-        </h2>
+        <h3 className="text-lg font-bold text-white mb-4 px-1 flex items-center gap-2">
+            <SparklesIcon className="w-5 h-5 text-primary" />
+            {texts.quickLinks}
+        </h3>
         <div className="grid grid-cols-2 gap-4">
-          {QUICK_LINKS.map(({id, icon: Icon}) => {
-            const config = TABS_CONFIG.find((tab) => tab.id === id);
-            if (!config) return null;
-            return (
-              <button
-                key={id}
-                onClick={() => setActiveTab && setActiveTab(id)}
-                className="bg-component-dark p-4 rounded-xl border border-border-dark text-center hover:border-primary/50 transition-all duration-300 ease-in-out transform hover:-translate-y-1 group hover:shadow-glow">
-                <div className="flex items-center justify-center w-12 h-12 bg-border-dark rounded-full mx-auto mb-3 group-hover:bg-primary/20 transition-colors">
-                  <Icon className="w-7 h-7 text-text-secondary group-hover:text-primary transition-colors" />
-                </div>
-                <p className="font-semibold text-text-dark text-sm">
-                  {config.label[langKey]}
-                </p>
-              </button>
-            );
+          {QUICK_LINKS.map(({id, icon: Icon, color, bg}) => {
+             const config = TABS_CONFIG.find((t) => t.id === id);
+             return (
+                <button 
+                  key={id} 
+                  onClick={() => setActiveTab && setActiveTab(id)}
+                  className="glass-card p-5 rounded-[2rem] flex flex-col items-start justify-between h-40 hover:bg-white/5 transition-all active:scale-95 group border border-white/5 hover:border-white/20"
+                >
+                   <div className={`w-14 h-14 rounded-2xl ${bg} flex items-center justify-center group-hover:scale-110 transition-transform border shadow-inner`}>
+                      <Icon className={`w-7 h-7 ${color}`} />
+                   </div>
+                   <div className="flex justify-between items-center w-full">
+                      <span className="text-sm font-bold text-white">{config?.label[langKey]}</span>
+                      <div className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span className="material-symbols-rounded text-xs">arrow_forward</span>
+                      </div>
+                   </div>
+                </button>
+             )
           })}
         </div>
       </div>
 
       {/* Recent Activity */}
       <div>
-        <h2 className="text-xl font-bold text-text-dark mb-4">
-          {texts.recentActivity}
-        </h2>
-        <div className="bg-component-dark p-4 rounded-xl border border-border-dark shadow-lg">
-          <ul className="divide-y divide-border-dark">
-            {RECENT_ACTIVITY.map(({id, icon: Icon, time}, index) => {
-              const config = TABS_CONFIG.find((tab) => tab.id === id);
-              if (!config) return null;
-              return (
-                <li
-                  key={id}
-                  className={`flex items-center justify-between py-3 ${index === 0 ? 'pt-0' : ''} ${index === RECENT_ACTIVITY.length - 1 ? 'pb-0' : ''}`}>
-                  <div className="flex items-center gap-4">
-                    <Icon className="w-8 h-8 text-primary" />
-                    <div>
-                      <p className="font-semibold text-text-dark">
-                        {config.label[langKey]}
-                      </p>
-                      <p className="text-sm text-text-secondary">
-                        {time[langKey]}
-                      </p>
-                    </div>
-                  </div>
-                  <button onClick={() => setActiveTab && setActiveTab(id)}>
-                    <span className="material-symbols-outlined text-text-secondary hover:text-text-dark">
-                      arrow_forward_ios
-                    </span>
+         <div className="flex justify-between items-center mb-4 px-1">
+            <h3 className="text-lg font-bold text-white">{texts.recentActivity}</h3>
+         </div>
+         <div className="space-y-3">
+            {RECENT_ACTIVITY.map(({id, icon: Icon, time}) => {
+               const config = TABS_CONFIG.find((t) => t.id === id);
+               return (
+                  <button 
+                     key={id}
+                     onClick={() => setActiveTab && setActiveTab(id)}
+                     className="w-full glass-card p-4 rounded-[1.5rem] flex items-center justify-between hover:bg-white/5 transition-colors border border-white/5 group"
+                  >
+                     <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5 group-hover:bg-white/10 transition-colors">
+                           <Icon className="w-6 h-6 text-white/70" />
+                        </div>
+                        <div className="text-left">
+                           <p className="font-bold text-white text-sm">{config?.label[langKey]}</p>
+                           <p className="text-xs text-white/40 mt-0.5 font-medium">{time[langKey]}</p>
+                        </div>
+                     </div>
+                     <div className="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 group-hover:bg-primary/20 transition-colors">
+                        <span className="material-symbols-rounded text-white/40 text-sm group-hover:text-primary">arrow_forward</span>
+                     </div>
                   </button>
-                </li>
-              );
+               )
             })}
-          </ul>
-        </div>
+         </div>
       </div>
+
     </div>
   );
 };
